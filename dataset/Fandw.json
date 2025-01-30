@@ -1,5 +1,5 @@
 {
-	"name": "alextestsa2",
+	"name": "Fandw",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",
@@ -12,7 +12,8 @@
 				"type": "AzureBlobStorageLocation",
 				"folderPath": "F&W",
 				"container": "datafactory"
-			}
+			},
+			"sheetIndex": 0
 		},
 		"schema": []
 	}
