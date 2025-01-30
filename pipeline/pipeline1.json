@@ -13,15 +13,24 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": [],
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "datafactory/F&W/"
+					},
+					{
+						"name": "Destination",
+						"value": "testCollection1"
+					}
+				],
 				"typeProperties": {
 					"source": {
 						"type": "ExcelSource",
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
+							"recursive": false,
 							"wildcardFolderPath": "F&W",
-							"wildcardFileName": "*",
+							"wildcardFileName": "*.xlsx",
 							"enablePartitionDiscovery": false
 						}
 					},
@@ -31,6 +40,7 @@
 						"writeBehavior": "upsert"
 					},
 					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
