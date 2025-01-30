@@ -13,8 +13,22 @@
 				"folderPath": "F&W",
 				"container": "datafactory"
 			},
-			"sheetIndex": 0
+			"sheetIndex": 0,
+			"firstRowAsHeader": false
 		},
-		"schema": []
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
 	}
 }
