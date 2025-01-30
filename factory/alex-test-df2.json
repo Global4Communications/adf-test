@@ -1,0 +1,9 @@
+{
+	"name": "alex-test-df2",
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "513b8975-8595-4ec7-9b24-48e7f1989c06",
+		"tenantId": "537d07fe-2e13-4d40-906b-0543ed1fc8ae"
+	}
+}
