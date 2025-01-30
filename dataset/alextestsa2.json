@@ -1,0 +1,19 @@
+{
+	"name": "alextestsa2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "F&W",
+				"container": "datafactory"
+			}
+		},
+		"schema": []
+	}
+}
