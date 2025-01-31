@@ -29,11 +29,11 @@
 						"additionalColumns": [
 							{
 								"name": "postcode",
-								"value": "$$COLUMN:Prop_2"
+								"value": "$$COLUMN:3"
 							},
 							{
 								"name": "uprn",
-								"value": "$$COLUMN:Prop_0"
+								"value": "$$COLUMN:1"
 							}
 						],
 						"storeSettings": {
