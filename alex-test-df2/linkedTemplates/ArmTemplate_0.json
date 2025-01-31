@@ -20,7 +20,20 @@
 			"metadata": "Secure string for 'account' of 'CosmosDbMongoDb1'",
 			"defaultValue": "alex-test-cd"
 		},
+		"CosmosDbMongoDb2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'CosmosDbMongoDb2'"
+		},
+		"CosmosDbMongoDb2_account": {
+			"type": "secureString",
+			"metadata": "Secure string for 'account' of 'CosmosDbMongoDb2'",
+			"defaultValue": "alex-test-cd2"
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "testDatabase"
+		},
+		"CosmosDbMongoDb2_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "testDatabase"
 		}
@@ -56,6 +69,25 @@
 						"value": "[parameters('CosmosDbMongoDb1_account')]"
 					},
 					"database": "[parameters('CosmosDbMongoDb1_properties_typeProperties_database')]",
+					"isServerVersionAbove32": true
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CosmosDbMongoDb2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "CosmosDbMongoDbApi",
+				"typeProperties": {
+					"connectionString": "[parameters('CosmosDbMongoDb2_connectionString')]",
+					"account": {
+						"type": "SecureString",
+						"value": "[parameters('CosmosDbMongoDb2_account')]"
+					},
+					"database": "[parameters('CosmosDbMongoDb2_properties_typeProperties_database')]",
 					"isServerVersionAbove32": true
 				}
 			},
@@ -121,6 +153,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CosmosDbMongoDbCollection3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CosmosDbMongoDb2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "CosmosDbMongoDbApiCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "testCollection1"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/CosmosDbMongoDb2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -174,7 +226,7 @@
 											"ordinal": 1
 										},
 										"sink": {
-											"path": "$['id']"
+											"path": "$['_id']"
 										}
 									},
 									{
@@ -183,7 +235,7 @@
 											"ordinal": 2
 										},
 										"sink": {
-											"path": "$.source.fandw.address"
+											"path": "$['source']['fandw']['address']"
 										}
 									},
 									{
@@ -192,7 +244,7 @@
 											"ordinal": 3
 										},
 										"sink": {
-											"path": "$.source.fandw.postcode"
+											"path": "$['source']['fandw']['postcode']"
 										}
 									},
 									{
@@ -201,7 +253,7 @@
 											"ordinal": 4
 										},
 										"sink": {
-											"path": "$.source.fandw.town"
+											"path": "$['source']['fandw']['town']"
 										}
 									}
 								]
@@ -216,7 +268,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "CosmosDbMongoDbCollection2",
+								"referenceName": "CosmosDbMongoDbCollection3",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -230,7 +282,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/CosmosDbMongoDbCollection2')]"
+				"[concat(variables('factoryId'), '/datasets/CosmosDbMongoDbCollection3')]"
 			]
 		}
 	]

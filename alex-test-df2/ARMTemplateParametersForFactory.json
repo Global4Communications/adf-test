@@ -14,7 +14,16 @@
 		"CosmosDbMongoDb1_account": {
 			"value": "alex-test-cd"
 		},
+		"CosmosDbMongoDb2_connectionString": {
+			"value": ""
+		},
+		"CosmosDbMongoDb2_account": {
+			"value": "alex-test-cd2"
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
+			"value": "testDatabase"
+		},
+		"CosmosDbMongoDb2_properties_typeProperties_database": {
 			"value": "testDatabase"
 		}
 	}

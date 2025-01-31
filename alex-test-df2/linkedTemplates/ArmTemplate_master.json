@@ -20,7 +20,20 @@
 			"metadata": "Secure string for 'account' of 'CosmosDbMongoDb1'",
 			"defaultValue": "alex-test-cd"
 		},
+		"CosmosDbMongoDb2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'CosmosDbMongoDb2'"
+		},
+		"CosmosDbMongoDb2_account": {
+			"type": "secureString",
+			"metadata": "Secure string for 'account' of 'CosmosDbMongoDb2'",
+			"defaultValue": "alex-test-cd2"
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "testDatabase"
+		},
+		"CosmosDbMongoDb2_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "testDatabase"
 		},
@@ -60,8 +73,17 @@
 					"CosmosDbMongoDb1_account": {
 						"value": "[parameters('CosmosDbMongoDb1_account')]"
 					},
+					"CosmosDbMongoDb2_connectionString": {
+						"value": "[parameters('CosmosDbMongoDb2_connectionString')]"
+					},
+					"CosmosDbMongoDb2_account": {
+						"value": "[parameters('CosmosDbMongoDb2_account')]"
+					},
 					"CosmosDbMongoDb1_properties_typeProperties_database": {
 						"value": "[parameters('CosmosDbMongoDb1_properties_typeProperties_database')]"
+					},
+					"CosmosDbMongoDb2_properties_typeProperties_database": {
+						"value": "[parameters('CosmosDbMongoDb2_properties_typeProperties_database')]"
 					}
 				}
 			},
