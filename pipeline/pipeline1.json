@@ -30,6 +30,10 @@
 							{
 								"name": "postcode",
 								"value": "$$COLUMN:Prop_2"
+							},
+							{
+								"name": "uprn",
+								"value": "$$COLUMN:Prop_0"
 							}
 						],
 						"storeSettings": {
@@ -52,11 +56,18 @@
 						"mappings": [
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 1
+									"name": "uprn"
 								},
 								"sink": {
 									"path": "$['_id']"
+								}
+							},
+							{
+								"source": {
+									"name": "postcode"
+								},
+								"sink": {
+									"path": "$['postcode']"
 								}
 							},
 							{
@@ -84,6 +95,15 @@
 								},
 								"sink": {
 									"path": "$['source']['fandw']['town']"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 1
+								},
+								"sink": {
+									"path": "$['source']['fandw']['uprn']"
 								}
 							}
 						]
