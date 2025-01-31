@@ -14,7 +14,7 @@
 				"container": "datafactory"
 			},
 			"sheetIndex": 0,
-			"firstRowAsHeader": false
+			"firstRowAsHeader": true
 		},
 		"schema": [
 			{

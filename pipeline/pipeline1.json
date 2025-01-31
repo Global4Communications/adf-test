@@ -28,12 +28,12 @@
 						"type": "ExcelSource",
 						"additionalColumns": [
 							{
-								"name": "postcode",
-								"value": "$$COLUMN:3"
+								"name": "_postcode",
+								"value": "$$COLUMN:postcode"
 							},
 							{
-								"name": "uprn",
-								"value": "$$COLUMN:1"
+								"name": "_uprn",
+								"value": "$$COLUMN:uprn"
 							}
 						],
 						"storeSettings": {
@@ -56,54 +56,56 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "uprn"
+									"name": "_uprn",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['_id']"
+									"path": "$.uprn"
 								}
 							},
 							{
 								"source": {
-									"name": "postcode"
+									"name": "_postcode",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['postcode']"
+									"path": "$.postcode"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 2
+									"name": "uprn",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['source']['fandw']['address']"
+									"path": "$.sources.fadnw.uprn"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 3
+									"name": "address",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['source']['fandw']['postcode']"
+									"path": "$.sources.fadnw.address"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 4
+									"name": "postcode",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['source']['fandw']['town']"
+									"path": "$.sources.fadnw.postcode"
 								}
 							},
 							{
 								"source": {
-									"type": "String",
-									"ordinal": 1
+									"name": "town",
+									"type": "String"
 								},
 								"sink": {
-									"path": "$['source']['fandw']['uprn']"
+									"path": "$.sources.fadnw.town"
 								}
 							}
 						]
