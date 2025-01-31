@@ -1,0 +1,15 @@
+{
+	"name": "CosmosDbMongoDbCollection3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "CosmosDbMongoDb2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbMongoDbApiCollection",
+		"schema": [],
+		"typeProperties": {
+			"collection": "testCollection1"
+		}
+	}
+}

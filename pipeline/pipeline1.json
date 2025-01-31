@@ -50,7 +50,7 @@
 									"ordinal": 1
 								},
 								"sink": {
-									"path": "$['id']"
+									"path": "$['_id']"
 								}
 							},
 							{
@@ -59,7 +59,7 @@
 									"ordinal": 2
 								},
 								"sink": {
-									"path": "$.source.fandw.address"
+									"path": "$['source']['fandw']['address']"
 								}
 							},
 							{
@@ -68,7 +68,7 @@
 									"ordinal": 3
 								},
 								"sink": {
-									"path": "$.source.fandw.postcode"
+									"path": "$['source']['fandw']['postcode']"
 								}
 							},
 							{
@@ -77,7 +77,7 @@
 									"ordinal": 4
 								},
 								"sink": {
-									"path": "$.source.fandw.town"
+									"path": "$['source']['fandw']['town']"
 								}
 							}
 						]
@@ -91,7 +91,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "CosmosDbMongoDbCollection2",
+						"referenceName": "CosmosDbMongoDbCollection3",
 						"type": "DatasetReference"
 					}
 				]
