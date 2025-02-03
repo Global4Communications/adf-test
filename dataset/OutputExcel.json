@@ -1,5 +1,5 @@
 {
-	"name": "Output",
+	"name": "OutputExcel",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",
