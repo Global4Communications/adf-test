@@ -1,0 +1,20 @@
+{
+	"name": "Output",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "Output",
+				"container": "datafactory"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}
