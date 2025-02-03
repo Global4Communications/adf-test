@@ -43,7 +43,7 @@
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": false,
-							"wildcardFolderPath": "FreedomFibre",
+							"wildcardFolderPath": "Freedom Fibre",
 							"wildcardFileName": "*.xlsx",
 							"enablePartitionDiscovery": false
 						}
