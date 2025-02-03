@@ -1,0 +1,34 @@
+{
+	"name": "FreedomFibre",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "FWRFSCorrecred",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "Freedom Fibre",
+				"container": "datafactory"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
