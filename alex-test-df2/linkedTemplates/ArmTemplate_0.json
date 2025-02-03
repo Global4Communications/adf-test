@@ -151,7 +151,7 @@
 						"container": "datafactory"
 					},
 					"sheetIndex": 0,
-					"firstRowAsHeader": false
+					"firstRowAsHeader": true
 				},
 				"schema": [
 					{
@@ -170,6 +170,26 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mongo_testCollection2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CosmosDbMongoDb2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "CosmosDbMongoDbApiCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "testCollection2"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/CosmosDbMongoDb2')]"
 			]
 		},
 		{
@@ -204,12 +224,16 @@
 								"type": "ExcelSource",
 								"additionalColumns": [
 									{
-										"name": "postcode",
-										"value": "$$COLUMN:Prop_2"
+										"name": "_postcode",
+										"value": "$$COLUMN:postcode"
 									},
 									{
-										"name": "uprn",
-										"value": "$$COLUMN:Prop_0"
+										"name": "_uprn",
+										"value": "$$COLUMN:uprn"
+									},
+									{
+										"name": "_id",
+										"value": "$$COLUMN:uprn"
 									}
 								],
 								"storeSettings": {
@@ -232,7 +256,17 @@
 								"mappings": [
 									{
 										"source": {
-											"name": "uprn"
+											"name": "_uprn",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "_id",
+											"type": "String"
 										},
 										"sink": {
 											"path": "$['_id']"
@@ -240,7 +274,8 @@
 									},
 									{
 										"source": {
-											"name": "postcode"
+											"name": "_postcode",
+											"type": "String"
 										},
 										"sink": {
 											"path": "$['postcode']"
@@ -248,38 +283,38 @@
 									},
 									{
 										"source": {
-											"type": "String",
-											"ordinal": 2
+											"name": "uprn",
+											"type": "String"
 										},
 										"sink": {
-											"path": "$['source']['fandw']['address']"
+											"path": "$['sources']['fandw']['uprn']"
 										}
 									},
 									{
 										"source": {
-											"type": "String",
-											"ordinal": 3
+											"name": "address",
+											"type": "String"
 										},
 										"sink": {
-											"path": "$['source']['fandw']['postcode']"
+											"path": "$['sources']['fandw']['address']"
 										}
 									},
 									{
 										"source": {
-											"type": "String",
-											"ordinal": 4
+											"name": "postcode",
+											"type": "String"
 										},
 										"sink": {
-											"path": "$['source']['fandw']['town']"
+											"path": "$['sources']['fandw']['postcode']"
 										}
 									},
 									{
 										"source": {
-											"type": "String",
-											"ordinal": 1
+											"name": "town",
+											"type": "String"
 										},
 										"sink": {
-											"path": "$['source']['fandw']['uprn']"
+											"path": "$['sources']['fandw']['town']"
 										}
 									}
 								]
@@ -294,7 +329,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "CosmosDbMongoDbCollection3",
+								"referenceName": "mongo_testCollection2",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -308,7 +343,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/CosmosDbMongoDbCollection3')]"
+				"[concat(variables('factoryId'), '/datasets/mongo_testCollection2')]"
 			]
 		}
 	]
