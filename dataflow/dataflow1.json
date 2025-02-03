@@ -19,15 +19,7 @@
 					"name": "freedomFibre"
 				}
 			],
-			"sinks": [
-				{
-					"dataset": {
-						"referenceName": "OutputCsv",
-						"type": "DatasetReference"
-					},
-					"name": "sink1"
-				}
-			],
+			"sinks": [],
 			"transformations": [
 				{
 					"name": "derivedColumn1"
@@ -36,10 +28,7 @@
 					"name": "derivedColumn2"
 				},
 				{
-					"name": "join1"
-				},
-				{
-					"name": "aggregate1"
+					"name": "union1"
 				}
 			],
 			"scriptLines": [
@@ -65,19 +54,26 @@
 				"     ignoreNoFilesFound: false,",
 				"     wildcardPaths:['Freedom Fibre/*'],",
 				"     partitionBy('hash', 1)) ~> freedomFibre",
-				"fandw derive(source = \"fandw\") ~> derivedColumn1",
-				"freedomFibre derive(source = \"freedomFibre\") ~> derivedColumn2",
-				"derivedColumn1, derivedColumn2 join(fandw@uprn == freedomFibre@uprn,",
-				"     joinType:'outer',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"join1 aggregate(groupBy(fandw@uprn)) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1) ~> sink1"
+				"fandw derive(source = \"fandw\",",
+				"          source_info = '{' +\r",
+				"    '\"fandw\": ' + '{' + \r",
+				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+				"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+				"    '}' +\r",
+				"'}') ~> derivedColumn1",
+				"freedomFibre derive(source = \"freedomFibre\",",
+				"          source_info = '{' +\r",
+				"    '\"freedomFibre\": ' + '{' + \r",
+				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+				"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+				"    '}' +\r",
+				"'}') ~> derivedColumn2",
+				"derivedColumn1, derivedColumn2 union(byName: true,",
+				"     partitionBy('hash', 1))~> union1"
 			]
 		}
 	}
