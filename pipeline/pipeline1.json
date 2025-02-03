@@ -78,7 +78,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fadnw.uprn"
+									"path": "$.sources.fandw.uprn"
 								}
 							},
 							{
@@ -87,7 +87,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fadnw.address"
+									"path": "$.sources.fandw.address"
 								}
 							},
 							{
@@ -96,7 +96,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fadnw.postcode"
+									"path": "$.sources.fandw.postcode"
 								}
 							},
 							{
@@ -105,7 +105,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fadnw.town"
+									"path": "$.sources.fandw.town"
 								}
 							}
 						]
