@@ -723,7 +723,7 @@
 									},
 									{
 										"name": "_uprn",
-										"value": "$$COLUMN:_uprn"
+										"value": "$$COLUMN:uprn"
 									}
 								],
 								"storeSettings": {
