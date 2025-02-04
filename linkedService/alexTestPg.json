@@ -1,0 +1,13 @@
+{
+	"name": "alexTestPg",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzurePostgreSql",
+		"version": "1.0",
+		"typeProperties": {
+			"connectionString": "host=alex-test-pg.postgres.database.azure.com;port=5432;database=postgres;uid=pgadmin;encryptionmethod=1;validateservercertificate=0",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDQ2QTc1QzIzLUUwREYtNDZDNi04RTMzLUJENDNCMzE0NzU3N18wNDg3OTFlZi1hMDUyLTQ1YWYtOTk5Yi1lODhhYWE4ODEwYjMiDQp9"
+		}
+	}
+}
