@@ -1,5 +1,5 @@
 {
-	"name": "Fandw",
+	"name": "OutputExcel",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",
@@ -8,27 +8,13 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "FWRFSCorrecred",
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": "F&W",
+				"folderPath": "Output",
 				"container": "datafactory"
 			},
 			"firstRowAsHeader": true
 		},
-		"schema": [
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }

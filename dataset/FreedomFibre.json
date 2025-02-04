@@ -1,5 +1,5 @@
 {
-	"name": "Fandw",
+	"name": "FreedomFibre",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",
@@ -11,7 +11,7 @@
 			"sheetName": "FWRFSCorrecred",
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": "F&W",
+				"folderPath": "Freedom Fibre",
 				"container": "datafactory"
 			},
 			"firstRowAsHeader": true

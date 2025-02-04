@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "FreedomFibre",
 	"properties": {
 		"activities": [
 			{
@@ -34,12 +34,16 @@
 							{
 								"name": "_uprn",
 								"value": "$$COLUMN:uprn"
+							},
+							{
+								"name": "_id",
+								"value": "$$COLUMN:uprn"
 							}
 						],
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": false,
-							"wildcardFolderPath": "F&W",
+							"wildcardFolderPath": "Freedom Fibre",
 							"wildcardFileName": "*.xlsx",
 							"enablePartitionDiscovery": false
 						}
@@ -60,7 +64,16 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.uprn"
+									"path": "$['uprn']"
+								}
+							},
+							{
+								"source": {
+									"name": "_id",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['_id']"
 								}
 							},
 							{
@@ -69,7 +82,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.postcode"
+									"path": "$['postcode']"
 								}
 							},
 							{
@@ -78,7 +91,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fandw.uprn"
+									"path": "$['sources']['freedomFibre']['uprn']"
 								}
 							},
 							{
@@ -87,7 +100,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fandw.address"
+									"path": "$['sources']['freedomFibre']['address']"
 								}
 							},
 							{
@@ -96,7 +109,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fandw.postcode"
+									"path": "$['sources']['freedomFibre']['postcode']"
 								}
 							},
 							{
@@ -105,7 +118,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$.sources.fandw.town"
+									"path": "$['sources']['freedomFibre']['town']"
 								}
 							}
 						]
@@ -113,13 +126,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "Fandw",
+						"referenceName": "FreedomFibre",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "CosmosDbMongoDbCollection3",
+						"referenceName": "mongo_testCollection2",
 						"type": "DatasetReference"
 					}
 				]

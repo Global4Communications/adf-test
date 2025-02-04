@@ -9,11 +9,37 @@
 						"referenceName": "Fandw",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "fandw"
+				},
+				{
+					"dataset": {
+						"referenceName": "FreedomFibre",
+						"type": "DatasetReference"
+					},
+					"name": "freedomFibre"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          uprn as string,",
@@ -23,11 +49,68 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     inferDriftedColumnTypes: true,",
-				"     limit: 10,",
 				"     ignoreNoFilesFound: false,",
-				"     rowUrlColumn: '_filename',",
-				"     partitionBy('hash', 1)) ~> source1"
+				"     wildcardPaths:['F&W/*'],",
+				"     partitionBy('hash', 1)) ~> fandw",
+				"source(output(",
+				"          uprn as string,",
+				"          postcode as string,",
+				"          address as string,",
+				"          town as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     wildcardPaths:['Freedom Fibre/*'],",
+				"     partitionBy('hash', 1)) ~> freedomFibre",
+				"fandw derive({_source} = \"fandw\",",
+				"          {_source_info} = '{' +\r",
+				"    '\"fandw\": ' + '{' + \r",
+				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+				"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+				"    '}' +\r",
+				"'}',",
+				"          {_uprn} = uprn) ~> derivedColumn1",
+				"freedomFibre derive({_source} = \"freedomFibre\",",
+				"          {_source_info} = '{' +\r",
+				"    '\"freedomFibre\": ' + '{' + \r",
+				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+				"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+				"    '}' +\r",
+				"'}',",
+				"          {_uprn} = uprn) ~> derivedColumn2",
+				"select1, select2 union(byName: true,",
+				"     partitionBy('hash', 1))~> union1",
+				"union1 aggregate(groupBy(uprn),",
+				"     postcode = first(postcode),",
+				"          source = collect(source),",
+				"     partitionBy('hash', 1)) ~> aggregate1",
+				"derivedColumn1 select(mapColumn(",
+				"          {_uprn},",
+				"          {_source},",
+				"          {_source_info},",
+				"          fandw_uprn = uprn,",
+				"          fandw_address = address,",
+				"          fandw_postcode = postcode,",
+				"          fandw_town = town",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn2 select(mapColumn(",
+				"          freedomFibre_uprn = uprn,",
+				"          freedomFibre_postcode = postcode,",
+				"          freedomFibre_address = address,",
+				"          freedomFibre_town = town,",
+				"          {_source},",
+				"          {_source_info},",
+				"          {_uprn}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2"
 			]
 		}
 	}

@@ -1,34 +1,23 @@
 {
-	"name": "Fandw",
+	"name": "OutputCsv",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "Excel",
+		"type": "DelimitedText",
 		"typeProperties": {
-			"sheetName": "FWRFSCorrecred",
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": "F&W",
+				"folderPath": "Output",
 				"container": "datafactory"
 			},
-			"firstRowAsHeader": true
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
 		},
-		"schema": [
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			},
-			{
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }
