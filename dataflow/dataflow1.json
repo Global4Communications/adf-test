@@ -79,7 +79,7 @@
 				"     partitionBy('hash', 1))~> union1",
 				"union1 aggregate(groupBy(uprn),",
 				"     postcode = first(postcode),",
-				"          sources = collect({ supplier: supplier, uprn: uprn, postcode: postcode, address: address, town: town }),",
+				"          source = collect(source),",
 				"     partitionBy('hash', 1)) ~> aggregate1"
 			]
 		}
