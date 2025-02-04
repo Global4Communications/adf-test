@@ -57,65 +57,60 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "_uprn",
-									"type": "String"
-								},
-								"sink": {
-									"path": "$['uprn']"
-								}
-							},
-							{
-								"source": {
-									"name": "_id",
-									"type": "String"
-								},
-								"sink": {
-									"path": "$['_id']"
-								}
-							},
-							{
-								"source": {
-									"name": "_postcode",
-									"type": "String"
-								},
-								"sink": {
-									"path": "$['postcode']"
-								}
-							},
-							{
-								"source": {
 									"name": "uprn",
-									"type": "String"
+									"type": "String",
+									"physicalType": "String"
 								},
 								"sink": {
-									"path": "$['sources']['freedomFibre']['uprn']"
+									"name": "uprn"
 								}
 							},
 							{
 								"source": {
 									"name": "address",
-									"type": "String"
+									"type": "String",
+									"physicalType": "String"
 								},
 								"sink": {
-									"path": "$['sources']['freedomFibre']['address']"
+									"name": "address"
 								}
 							},
 							{
 								"source": {
 									"name": "postcode",
-									"type": "String"
+									"type": "String",
+									"physicalType": "String"
 								},
 								"sink": {
-									"path": "$['sources']['freedomFibre']['postcode']"
+									"name": "postcode"
 								}
 							},
 							{
 								"source": {
 									"name": "town",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "town"
+								}
+							},
+							{
+								"source": {
+									"name": "_filename",
 									"type": "String"
 								},
 								"sink": {
-									"path": "$['sources']['freedomFibre']['town']"
+									"name": "_filename"
+								}
+							},
+							{
+								"source": {
+									"name": "_filepath",
+									"type": "String"
+								},
+								"sink": {
+									"name": "_filepath"
 								}
 							}
 						],
