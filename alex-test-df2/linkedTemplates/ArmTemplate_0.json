@@ -376,6 +376,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Rfs3TableStorage')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alextestsa2_tableStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "rfs3"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/FreedomFibre')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -696,6 +716,14 @@
 									{
 										"name": "_filename",
 										"value": "$$FILENAME"
+									},
+									{
+										"name": "_supplier",
+										"value": "fandw"
+									},
+									{
+										"name": "_uprn",
+										"value": "$$COLUMN:_uprn"
 									}
 								],
 								"storeSettings": {
@@ -768,6 +796,23 @@
 										"sink": {
 											"name": "_filepath"
 										}
+									},
+									{
+										"source": {
+											"name": "_supplier"
+										},
+										"sink": {
+											"name": "_supplier"
+										}
+									},
+									{
+										"source": {
+											"name": "_uprn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "_uprn"
+										}
 									}
 								],
 								"typeConversion": true,
@@ -786,7 +831,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "FandwTableStorage",
+								"referenceName": "Rfs3TableStorage",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -800,7 +845,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/FandwTableStorage')]"
+				"[concat(variables('factoryId'), '/datasets/Rfs3TableStorage')]"
 			]
 		},
 		{
@@ -841,6 +886,14 @@
 									{
 										"name": "_filepath",
 										"value": "$$FILEPATH"
+									},
+									{
+										"name": "_supplier",
+										"value": "freedomFibre"
+									},
+									{
+										"name": "_uprn",
+										"value": "$$COLUMN:uprn"
 									}
 								],
 								"storeSettings": {
@@ -854,7 +907,7 @@
 							"sink": {
 								"type": "AzureTableSink",
 								"azureTableInsertType": "merge",
-								"azureTableDefaultPartitionKeyValue": "Main",
+								"azureTableDefaultPartitionKeyValue": "main",
 								"writeBatchSize": 10000
 							},
 							"enableStaging": false,
@@ -919,6 +972,22 @@
 										"sink": {
 											"name": "_filepath"
 										}
+									},
+									{
+										"source": {
+											"name": "_supplier"
+										},
+										"sink": {
+											"name": "_supplier"
+										}
+									},
+									{
+										"source": {
+											"name": "_uprn"
+										},
+										"sink": {
+											"name": "_uprn"
+										}
 									}
 								],
 								"typeConversion": true,
@@ -937,7 +1006,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "FreedomFibreTableStorage",
+								"referenceName": "Rfs3TableStorage",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -951,7 +1020,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/FreedomFibre')]",
-				"[concat(variables('factoryId'), '/datasets/FreedomFibreTableStorage')]"
+				"[concat(variables('factoryId'), '/datasets/Rfs3TableStorage')]"
 			]
 		}
 	]
