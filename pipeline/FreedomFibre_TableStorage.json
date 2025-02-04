@@ -129,7 +129,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "FreedomFibreTableStorage",
+						"referenceName": "Rfs3TableStorage",
 						"type": "DatasetReference"
 					}
 				]
