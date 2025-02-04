@@ -33,6 +33,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'alextestsa2_tableStorage'"
 		},
+		"alexTestPg_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'alexTestPg'"
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "testDatabase"
@@ -85,6 +89,9 @@
 					},
 					"alextestsa2_tableStorage_connectionString": {
 						"value": "[parameters('alextestsa2_tableStorage_connectionString')]"
+					},
+					"alexTestPg_connectionString": {
+						"value": "[parameters('alexTestPg_connectionString')]"
 					},
 					"CosmosDbMongoDb1_properties_typeProperties_database": {
 						"value": "[parameters('CosmosDbMongoDb1_properties_typeProperties_database')]"

@@ -23,6 +23,9 @@
 		"alextestsa2_tableStorage_connectionString": {
 			"value": ""
 		},
+		"alexTestPg_connectionString": {
+			"value": ""
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
 			"value": "testDatabase"
 		},

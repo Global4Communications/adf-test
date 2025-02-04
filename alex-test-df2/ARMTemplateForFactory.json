@@ -33,6 +33,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'alextestsa2_tableStorage'"
 		},
+		"alexTestPg_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'alexTestPg'"
+		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "testDatabase"
@@ -765,12 +769,12 @@
 								"type": "ExcelSource",
 								"additionalColumns": [
 									{
-										"name": "_postcode",
-										"value": "$$COLUMN:postcode"
+										"name": "_filepath",
+										"value": "$$FILEPATH"
 									},
 									{
-										"name": "_uprn",
-										"value": "$$COLUMN:uprn"
+										"name": "_filename",
+										"value": "$$FILENAME"
 									}
 								],
 								"storeSettings": {
@@ -785,7 +789,6 @@
 								"type": "AzureTableSink",
 								"azureTableInsertType": "merge",
 								"azureTableDefaultPartitionKeyValue": "main",
-								"azureTableRowKeyName": "uprn",
 								"writeBatchSize": 10000
 							},
 							"enableStaging": false,
@@ -828,6 +831,22 @@
 										"sink": {
 											"name": "town"
 										}
+									},
+									{
+										"source": {
+											"name": "_filename"
+										},
+										"sink": {
+											"name": "_filename"
+										}
+									},
+									{
+										"source": {
+											"name": "_filepath"
+										},
+										"sink": {
+											"name": "_filepath"
+										}
 									}
 								],
 								"typeConversion": true,
@@ -861,6 +880,41 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
 				"[concat(variables('factoryId'), '/datasets/RfsTableStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/alexTestPg')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzurePostgreSql",
+				"version": "1.0",
+				"typeProperties": {
+					"connectionString": "[parameters('alexTestPg_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/alexTestPg')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alexTestPg",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "public",
+					"table": "fandw"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alexTestPg')]"
 			]
 		}
 	]
