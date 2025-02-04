@@ -34,6 +34,14 @@
 							{
 								"name": "_filename",
 								"value": "$$FILENAME"
+							},
+							{
+								"name": "_supplier",
+								"value": "fandw"
+							},
+							{
+								"name": "_uprn",
+								"value": "$$COLUMN:_uprn"
 							}
 						],
 						"storeSettings": {
@@ -106,6 +114,23 @@
 								"sink": {
 									"name": "_filepath"
 								}
+							},
+							{
+								"source": {
+									"name": "_supplier"
+								},
+								"sink": {
+									"name": "_supplier"
+								}
+							},
+							{
+								"source": {
+									"name": "_uprn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "_uprn"
+								}
 							}
 						],
 						"typeConversion": true,
@@ -123,7 +148,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "FandwTableStorage",
+						"referenceName": "Rfs3TableStorage",
 						"type": "DatasetReference"
 					}
 				]
