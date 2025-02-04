@@ -120,6 +120,22 @@
 								"sink": {
 									"name": "_filepath"
 								}
+							},
+							{
+								"source": {
+									"name": "_supplier"
+								},
+								"sink": {
+									"name": "_supplier"
+								}
+							},
+							{
+								"source": {
+									"name": "_uprn"
+								},
+								"sink": {
+									"name": "_uprn"
+								}
 							}
 						],
 						"typeConversion": true,
