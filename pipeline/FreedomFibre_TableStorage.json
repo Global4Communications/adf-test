@@ -47,7 +47,7 @@
 					"sink": {
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
-						"azureTableDefaultPartitionKeyValue": "Main",
+						"azureTableDefaultPartitionKeyValue": "main",
 						"writeBatchSize": 10000
 					},
 					"enableStaging": false,
