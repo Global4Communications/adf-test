@@ -34,10 +34,6 @@
 							{
 								"name": "_uprn",
 								"value": "$$COLUMN:uprn"
-							},
-							{
-								"name": "_id",
-								"value": "$$COLUMN:uprn"
 							}
 						],
 						"storeSettings": {
@@ -52,7 +48,7 @@
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
 						"azureTableDefaultPartitionKeyValue": "main",
-						"azureTableRowKeyName": "RowKey",
+						"azureTableRowKeyName": "uprn",
 						"writeBatchSize": 10000
 					},
 					"enableStaging": false,
@@ -60,33 +56,6 @@
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
-							{
-								"source": {
-									"name": "_uprn",
-									"type": "String"
-								},
-								"sink": {
-									"name": "RowKey"
-								}
-							},
-							{
-								"source": {
-									"name": "_id",
-									"type": "String"
-								},
-								"sink": {
-									"path": "$['_id']"
-								}
-							},
-							{
-								"source": {
-									"name": "_postcode",
-									"type": "String"
-								},
-								"sink": {
-									"path": "$['postcode']"
-								}
-							},
 							{
 								"source": {
 									"name": "uprn",
