@@ -31,9 +31,6 @@
 					"name": "union1"
 				},
 				{
-					"name": "aggregate1"
-				},
-				{
 					"name": "select1"
 				},
 				{
@@ -85,10 +82,6 @@
 				"          {_uprn} = uprn) ~> derivedColumn2",
 				"select1, select2 union(byName: true,",
 				"     partitionBy('hash', 1))~> union1",
-				"union1 aggregate(groupBy(uprn),",
-				"     postcode = first(postcode),",
-				"          source = collect(source),",
-				"     partitionBy('hash', 1)) ~> aggregate1",
 				"derivedColumn1 select(mapColumn(",
 				"          {_uprn},",
 				"          {_source},",
