@@ -32,6 +32,12 @@
 				},
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -57,8 +63,8 @@
 				"     ignoreNoFilesFound: false,",
 				"     wildcardPaths:['Freedom Fibre/*'],",
 				"     partitionBy('hash', 1)) ~> freedomFibre",
-				"fandw derive(source = \"fandw\",",
-				"          source_info = '{' +\r",
+				"fandw derive({_source} = \"fandw\",",
+				"          {_source_info} = '{' +\r",
 				"    '\"fandw\": ' + '{' + \r",
 				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
 				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
@@ -66,8 +72,8 @@
 				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
 				"    '}' +\r",
 				"'}') ~> derivedColumn1",
-				"freedomFibre derive(source = \"freedomFibre\",",
-				"          source_info = '{' +\r",
+				"freedomFibre derive({_source} = \"freedomFibre\",",
+				"          {_source_info} = '{' +\r",
 				"    '\"freedomFibre\": ' + '{' + \r",
 				"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
 				"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
@@ -75,12 +81,32 @@
 				"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
 				"    '}' +\r",
 				"'}') ~> derivedColumn2",
-				"derivedColumn1, derivedColumn2 union(byName: true,",
+				"select1, derivedColumn2 union(byName: true,",
 				"     partitionBy('hash', 1))~> union1",
 				"union1 aggregate(groupBy(uprn),",
 				"     postcode = first(postcode),",
 				"          source = collect(source),",
-				"     partitionBy('hash', 1)) ~> aggregate1"
+				"     partitionBy('hash', 1)) ~> aggregate1",
+				"derivedColumn1 select(mapColumn(",
+				"          fandw_uprn = uprn,",
+				"          fandw_address = address,",
+				"          fandw_postcode = postcode,",
+				"          fandw_town = town,",
+				"          {_source},",
+				"          {_source_info}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn2 select(mapColumn(",
+				"          freedomFibre_uprn = uprn,",
+				"          freedomFibre_postcode = postcode,",
+				"          freedomFibre_address = address,",
+				"          freedomFibre_town = town,",
+				"          {_source},",
+				"          {_source_info}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2"
 			]
 		}
 	}
