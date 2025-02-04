@@ -28,12 +28,12 @@
 						"type": "ExcelSource",
 						"additionalColumns": [
 							{
-								"name": "_postcode",
-								"value": "$$COLUMN:postcode"
+								"name": "_filepath",
+								"value": "$$FILEPATH"
 							},
 							{
-								"name": "_uprn",
-								"value": "$$COLUMN:uprn"
+								"name": "_filename",
+								"value": "$$FILENAME"
 							}
 						],
 						"storeSettings": {
@@ -89,6 +89,22 @@
 								},
 								"sink": {
 									"name": "town"
+								}
+							},
+							{
+								"source": {
+									"name": "_filename"
+								},
+								"sink": {
+									"name": "_filename"
+								}
+							},
+							{
+								"source": {
+									"name": "_filepath"
+								},
+								"sink": {
+									"name": "_filepath"
 								}
 							}
 						],
