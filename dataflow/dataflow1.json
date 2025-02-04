@@ -29,6 +29,9 @@
 				},
 				{
 					"name": "union1"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -73,7 +76,9 @@
 				"    '}' +\r",
 				"'}') ~> derivedColumn2",
 				"derivedColumn1, derivedColumn2 union(byName: true,",
-				"     partitionBy('hash', 1))~> union1"
+				"     partitionBy('hash', 1))~> union1",
+				"union1 aggregate(groupBy(uprn),",
+				"     sources = collect(source_info)) ~> aggregate1"
 			]
 		}
 	}
