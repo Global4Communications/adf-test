@@ -48,7 +48,6 @@
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
 						"azureTableDefaultPartitionKeyValue": "main",
-						"azureTableRowKeyName": "uprn",
 						"writeBatchSize": 10000
 					},
 					"enableStaging": false,
@@ -114,6 +113,14 @@
 				]
 			}
 		],
+		"variables": {
+			"startTime": {
+				"type": "String"
+			},
+			"pipelineTriggerTime": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
