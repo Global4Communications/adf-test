@@ -20,10 +20,10 @@
 		"CosmosDbMongoDb2_account": {
 			"value": "alex-test-cd2"
 		},
-		"alextestsa2_tableStorage_connectionString": {
+		"alexTestPg_connectionString": {
 			"value": ""
 		},
-		"alexTestPg_connectionString": {
+		"alextestsa2_tableStorage_connectionString": {
 			"value": ""
 		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {

@@ -29,13 +29,13 @@
 			"metadata": "Secure string for 'account' of 'CosmosDbMongoDb2'",
 			"defaultValue": "alex-test-cd2"
 		},
-		"alextestsa2_tableStorage_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'alextestsa2_tableStorage'"
-		},
 		"alexTestPg_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'alexTestPg'"
+		},
+		"alextestsa2_tableStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'alextestsa2_tableStorage'"
 		},
 		"CosmosDbMongoDb1_properties_typeProperties_database": {
 			"type": "string",
@@ -87,11 +87,11 @@
 					"CosmosDbMongoDb2_account": {
 						"value": "[parameters('CosmosDbMongoDb2_account')]"
 					},
-					"alextestsa2_tableStorage_connectionString": {
-						"value": "[parameters('alextestsa2_tableStorage_connectionString')]"
-					},
 					"alexTestPg_connectionString": {
 						"value": "[parameters('alexTestPg_connectionString')]"
+					},
+					"alextestsa2_tableStorage_connectionString": {
+						"value": "[parameters('alextestsa2_tableStorage_connectionString')]"
 					},
 					"CosmosDbMongoDb1_properties_typeProperties_database": {
 						"value": "[parameters('CosmosDbMongoDb1_properties_typeProperties_database')]"
