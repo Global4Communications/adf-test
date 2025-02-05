@@ -42,6 +42,10 @@
 							{
 								"name": "_uprn",
 								"value": "$$COLUMN:uprn"
+							},
+							{
+								"name": "_postcode",
+								"value": "$$COLUMN:postcode"
 							}
 						],
 						"storeSettings": {
@@ -135,6 +139,14 @@
 								},
 								"sink": {
 									"name": "_uprn"
+								}
+							},
+							{
+								"source": {
+									"name": "_postcode"
+								},
+								"sink": {
+									"name": "_postcode"
 								}
 							}
 						],
