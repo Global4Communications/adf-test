@@ -772,7 +772,7 @@
 				"type": "AzureTable",
 				"schema": [],
 				"typeProperties": {
-					"tableName": "rfsCsvRows"
+					"tableName": "rfsFileRows"
 				}
 			},
 			"dependsOn": [
