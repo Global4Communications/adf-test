@@ -9,7 +9,7 @@
 		"type": "AzureTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "rfs3"
+			"tableName": "rfsCsvRows"
 		}
 	}
 }
