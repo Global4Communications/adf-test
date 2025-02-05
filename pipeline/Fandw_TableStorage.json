@@ -42,6 +42,10 @@
 							{
 								"name": "_uprn",
 								"value": "$$COLUMN:uprn"
+							},
+							{
+								"name": "_postcode",
+								"value": "$$COLUMN:postcode"
 							}
 						],
 						"storeSettings": {
@@ -55,7 +59,7 @@
 					"sink": {
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
-						"azureTableDefaultPartitionKeyValue": "main",
+						"azureTablePartitionKeyName": "uprn",
 						"writeBatchSize": 10000
 					},
 					"enableStaging": false,
@@ -130,6 +134,14 @@
 								},
 								"sink": {
 									"name": "_uprn"
+								}
+							},
+							{
+								"source": {
+									"name": "_postcode"
+								},
+								"sink": {
+									"name": "_postcode"
 								}
 							}
 						],
