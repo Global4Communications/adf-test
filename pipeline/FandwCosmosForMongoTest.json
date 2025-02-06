@@ -67,40 +67,11 @@
 									"value": "@contains(activity('Lookup2').output, 'firstRow')",
 									"type": "Expression"
 								},
-								"ifFalseActivities": [
-									{
-										"name": "Append variable2",
-										"type": "AppendVariable",
-										"dependsOn": [],
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "test2",
-											"value": "item()"
-										}
-									}
-								],
 								"ifTrueActivities": [
-									{
-										"name": "Append variable1",
-										"type": "AppendVariable",
-										"dependsOn": [],
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "test",
-											"value": "item()"
-										}
-									},
 									{
 										"name": "Copy data1",
 										"type": "Copy",
-										"dependsOn": [
-											{
-												"activity": "Append variable1",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
+										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
