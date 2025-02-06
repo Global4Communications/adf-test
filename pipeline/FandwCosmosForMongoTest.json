@@ -36,8 +36,12 @@
 							"typeProperties": {
 								"source": {
 									"type": "CosmosDbSqlApiSource",
-									"query": "SELECT * FROM uprns where uprns._uprn = @uprn",
-									"preferredRegions": []
+									"query": {
+										"value": "SELECT * FROM uprns WHERE uprns._uprn = '@{item().uprn}'\n",
+										"type": "Expression"
+									},
+									"preferredRegions": [],
+									"detectDatetime": true
 								},
 								"dataset": {
 									"referenceName": "Nosql",
@@ -47,7 +51,7 @@
 							}
 						},
 						{
-							"name": "If Condition1",
+							"name": "If Exists Then",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -60,7 +64,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(length(activity('Lookup2').output.value), 0)",
+									"value": "@contains(activity('Lookup2').output, 'firstRow')",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -85,6 +89,98 @@
 											"variableName": "test",
 											"value": "item()"
 										}
+									},
+									{
+										"name": "Copy data1",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Append variable1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "CosmosDbSqlApiSource",
+												"additionalColumns": [
+													{
+														"name": "_test",
+														"value": "test"
+													}
+												],
+												"query": {
+													"value": "select * from uprns where uprns._id = '@{item().output.firstRow.id}'",
+													"type": "Expression"
+												},
+												"preferredRegions": [],
+												"detectDatetime": true
+											},
+											"sink": {
+												"type": "CosmosDbSqlApiSink",
+												"writeBehavior": "upsert",
+												"disableMetricsCollection": false
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"mappings": [
+													{
+														"source": {
+															"path": "$id"
+														},
+														"sink": {
+															"path": "$id"
+														}
+													},
+													{
+														"source": {
+															"path": "$_PartitionKey"
+														},
+														"sink": {
+															"path": "$_PartitionKey"
+														}
+													},
+													{
+														"source": {
+															"path": "$_uprn"
+														},
+														"sink": {
+															"path": "$_uprn"
+														}
+													},
+													{
+														"source": {
+															"path": "_test"
+														},
+														"sink": {
+															"path": "$_test"
+														}
+													}
+												]
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "Nosql",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "Nosql",
+												"type": "DatasetReference"
+											}
+										]
 									}
 								]
 							}
