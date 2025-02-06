@@ -32,11 +32,16 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [],
+							"userProperties": [
+								{
+									"name": "uprn",
+									"value": "@item.uprn"
+								}
+							],
 							"typeProperties": {
 								"source": {
 									"type": "CosmosDbSqlApiSource",
-									"query": "SELECT * FROM c WHERE c._uprn = @uprn",
+									"query": "SELECT * FROM c WHERE c.uprn = @uprn",
 									"preferredRegions": []
 								},
 								"dataset": {
@@ -93,7 +98,8 @@
 					"dataset": {
 						"referenceName": "Fandw",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
