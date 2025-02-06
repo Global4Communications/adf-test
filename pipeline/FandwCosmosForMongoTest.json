@@ -119,7 +119,7 @@
 													}
 												],
 												"query": {
-													"value": "select * from uprns where uprns._id = '@{activity('Lookup2').output.firstRow}'",
+													"value": "select * from uprns c where c.id = '@{activity('Lookup2').output.firstRow.id}'",
 													"type": "Expression"
 												},
 												"preferredRegions": [],
@@ -136,34 +136,34 @@
 												"mappings": [
 													{
 														"source": {
-															"path": "$id"
+															"path": "$['id']"
 														},
 														"sink": {
-															"path": "$id"
+															"path": "id"
 														}
 													},
 													{
 														"source": {
-															"path": "$_PartitionKey"
+															"path": "$['_PartitionKey']"
 														},
 														"sink": {
-															"path": "$_PartitionKey"
+															"path": "_PartitionKey"
 														}
 													},
 													{
 														"source": {
-															"path": "$_uprn"
+															"path": "$['_uprn']"
 														},
 														"sink": {
-															"path": "$_uprn"
+															"path": "_uprn"
 														}
 													},
 													{
 														"source": {
+															"path": "$['_test']"
+														},
+														"sink": {
 															"path": "_test"
-														},
-														"sink": {
-															"path": "$_test"
 														}
 													}
 												]
