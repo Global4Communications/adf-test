@@ -119,7 +119,7 @@
 													}
 												],
 												"query": {
-													"value": "select * from uprns where uprns._id = '@{item().output.firstRow.id}'",
+													"value": "select * from uprns where uprns._id = '@{activity('Lookup2').output.firstRow}'",
 													"type": "Expression"
 												},
 												"preferredRegions": [],
