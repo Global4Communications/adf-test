@@ -85,6 +85,8 @@
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
+							"wildcardFolderPath": "F&W",
+							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						}
 					},
