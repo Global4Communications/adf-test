@@ -44,6 +44,25 @@
 									"type": "DatasetReference"
 								}
 							}
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Lookup2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(length(activity('Lookup2').output.value), 0)",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
