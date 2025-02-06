@@ -1,0 +1,16 @@
+{
+	"name": "alexTestPg",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "alexTestPg",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzurePostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": "fandw"
+		}
+	}
+}

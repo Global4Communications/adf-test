@@ -1,0 +1,171 @@
+{
+	"name": "Fandw_TableStorage",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "datafactory/F&W/"
+					},
+					{
+						"name": "Destination",
+						"value": "testCollection1"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"additionalColumns": [
+							{
+								"name": "_filepath",
+								"value": "$$FILEPATH"
+							},
+							{
+								"name": "_filename",
+								"value": "$$FILENAME"
+							},
+							{
+								"name": "_supplier",
+								"value": "fandw"
+							},
+							{
+								"name": "_uprn",
+								"value": "$$COLUMN:uprn"
+							},
+							{
+								"name": "_postcode",
+								"value": "$$COLUMN:postcode"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": "F&W",
+							"wildcardFileName": "*.xlsx",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureTableSink",
+						"azureTableInsertType": "merge",
+						"azureTableDefaultPartitionKeyValue": "main",
+						"writeBatchSize": 10000
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uprn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "uprn"
+								}
+							},
+							{
+								"source": {
+									"name": "address",
+									"type": "String"
+								},
+								"sink": {
+									"name": "address"
+								}
+							},
+							{
+								"source": {
+									"name": "postcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "postcode"
+								}
+							},
+							{
+								"source": {
+									"name": "town",
+									"type": "String"
+								},
+								"sink": {
+									"name": "town"
+								}
+							},
+							{
+								"source": {
+									"name": "_filename"
+								},
+								"sink": {
+									"name": "_filename"
+								}
+							},
+							{
+								"source": {
+									"name": "_filepath"
+								},
+								"sink": {
+									"name": "_filepath"
+								}
+							},
+							{
+								"source": {
+									"name": "_supplier"
+								},
+								"sink": {
+									"name": "_supplier"
+								}
+							},
+							{
+								"source": {
+									"name": "_uprn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "_uprn"
+								}
+							},
+							{
+								"source": {
+									"name": "_postcode"
+								},
+								"sink": {
+									"name": "_postcode"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Fandw",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Rfs3TableStorage",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
