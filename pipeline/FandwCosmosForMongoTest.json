@@ -19,7 +19,7 @@
 						"value": "@activity('Lookup1').output.value",
 						"type": "Expression"
 					},
-					"isSequential": true,
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "Lookup2",
@@ -32,16 +32,11 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [
-								{
-									"name": "uprn",
-									"value": "@item.uprn"
-								}
-							],
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "CosmosDbSqlApiSource",
-									"query": "SELECT * FROM c WHERE c.uprn = @uprn",
+									"query": "SELECT * FROM uprns WHERE uprns.uprn = @uprn",
 									"preferredRegions": []
 								},
 								"dataset": {
