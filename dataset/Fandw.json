@@ -5,6 +5,9 @@
 			"referenceName": "AzureBlobStorage1",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "alextestsa2/Blob Storage"
+		},
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {

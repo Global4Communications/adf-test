@@ -5,6 +5,9 @@
 			"referenceName": "alextestsa2_tableStorage",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "alextestsa2/Table Storage"
+		},
 		"annotations": [],
 		"type": "AzureTable",
 		"schema": [],

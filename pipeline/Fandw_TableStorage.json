@@ -160,7 +160,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "Rfs3TableStorage",
+						"referenceName": "rfsFileRows",
 						"type": "DatasetReference"
 					}
 				]

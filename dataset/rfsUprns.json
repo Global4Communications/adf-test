@@ -1,15 +1,18 @@
 {
-	"name": "Rfs3TableStorage",
+	"name": "rfsUprns",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "alextestsa2_tableStorage",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "alextestsa2/Table Storage"
+		},
 		"annotations": [],
 		"type": "AzureTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "rfsFileRows"
+			"tableName": "rfsUprns"
 		}
 	}
 }

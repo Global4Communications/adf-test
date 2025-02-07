@@ -1,0 +1,203 @@
+{
+	"name": "FandwCosmosForMongoTest",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup1').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Lookup2",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "CosmosDbSqlApiSource",
+									"query": {
+										"value": "SELECT * FROM uprns WHERE uprns._uprn = '@{item().uprn}'\n",
+										"type": "Expression"
+									},
+									"preferredRegions": [],
+									"detectDatetime": true
+								},
+								"dataset": {
+									"referenceName": "Nosql",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": true
+							}
+						},
+						{
+							"name": "If Exists Then",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Lookup2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@contains(activity('Lookup2').output, 'firstRow')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Copy data1",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "CosmosDbSqlApiSource",
+												"additionalColumns": [
+													{
+														"name": "_test",
+														"value": "test"
+													}
+												],
+												"query": {
+													"value": "select * from uprns c where c.id = '@{activity('Lookup2').output.firstRow.id}'",
+													"type": "Expression"
+												},
+												"preferredRegions": [],
+												"detectDatetime": true
+											},
+											"sink": {
+												"type": "CosmosDbSqlApiSink",
+												"writeBehavior": "upsert",
+												"disableMetricsCollection": false
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"mappings": [
+													{
+														"source": {
+															"path": "$['id']"
+														},
+														"sink": {
+															"path": "id"
+														}
+													},
+													{
+														"source": {
+															"path": "$['_PartitionKey']"
+														},
+														"sink": {
+															"path": "_PartitionKey"
+														}
+													},
+													{
+														"source": {
+															"path": "$['_uprn']"
+														},
+														"sink": {
+															"path": "_uprn"
+														}
+													},
+													{
+														"source": {
+															"path": "$['_test']"
+														},
+														"sink": {
+															"path": "_test"
+														}
+													}
+												]
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "Nosql",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "Nosql",
+												"type": "DatasetReference"
+											}
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "F&W",
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"dataset": {
+						"referenceName": "Fandw",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"variables": {
+			"test": {
+				"type": "Array"
+			},
+			"test2": {
+				"type": "Array"
+			}
+		},
+		"annotations": []
+	}
+}
