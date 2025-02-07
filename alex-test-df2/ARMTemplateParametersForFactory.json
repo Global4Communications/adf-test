@@ -20,6 +20,9 @@
 		"CosmosDbMongoDb2_account": {
 			"value": "alex-test-cd2"
 		},
+		"CosmosDbNoSql1_connectionString": {
+			"value": ""
+		},
 		"alexTestPg_connectionString": {
 			"value": ""
 		},

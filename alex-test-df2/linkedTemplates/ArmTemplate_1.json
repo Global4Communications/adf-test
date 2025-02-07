@@ -1,0 +1,573 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "alex-test-df2"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/FreedomFibre')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "datafactory/F&W/"
+							},
+							{
+								"name": "Destination",
+								"value": "testCollection1"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"additionalColumns": [
+									{
+										"name": "_postcode",
+										"value": "$$COLUMN:postcode"
+									},
+									{
+										"name": "_uprn",
+										"value": "$$COLUMN:uprn"
+									},
+									{
+										"name": "_id",
+										"value": "$$COLUMN:uprn"
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": "Freedom Fibre",
+									"wildcardFileName": "*.xlsx",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "CosmosDbMongoDbApiSink",
+								"writeBatchTimeout": "00:00:01",
+								"writeBehavior": "upsert"
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "_uprn",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "_id",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['_id']"
+										}
+									},
+									{
+										"source": {
+											"name": "_postcode",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['postcode']"
+										}
+									},
+									{
+										"source": {
+											"name": "uprn",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['sources']['freedomFibre']['uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "address",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['sources']['freedomFibre']['address']"
+										}
+									},
+									{
+										"source": {
+											"name": "postcode",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['sources']['freedomFibre']['postcode']"
+										}
+									},
+									{
+										"source": {
+											"name": "town",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['sources']['freedomFibre']['town']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "FreedomFibre",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "mongo_testCollection2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FreedomFibre_TableStorage')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "datafactory/F&W/"
+							},
+							{
+								"name": "Destination",
+								"value": "testCollection1"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"additionalColumns": [
+									{
+										"name": "_filename",
+										"value": "$$FILENAME"
+									},
+									{
+										"name": "_filepath",
+										"value": "$$FILEPATH"
+									},
+									{
+										"name": "_supplier",
+										"value": "freedomFibre"
+									},
+									{
+										"name": "_uprn",
+										"value": "$$COLUMN:uprn"
+									},
+									{
+										"name": "_postcode",
+										"value": "$$COLUMN:postcode"
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": "Freedom Fibre",
+									"wildcardFileName": "*.xlsx",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTableDefaultPartitionKeyValue": "main",
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "uprn",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "uprn"
+										}
+									},
+									{
+										"source": {
+											"name": "address",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "address"
+										}
+									},
+									{
+										"source": {
+											"name": "postcode",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "postcode"
+										}
+									},
+									{
+										"source": {
+											"name": "town",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "town"
+										}
+									},
+									{
+										"source": {
+											"name": "_filename",
+											"type": "String"
+										},
+										"sink": {
+											"name": "_filename"
+										}
+									},
+									{
+										"source": {
+											"name": "_filepath",
+											"type": "String"
+										},
+										"sink": {
+											"name": "_filepath"
+										}
+									},
+									{
+										"source": {
+											"name": "_supplier"
+										},
+										"sink": {
+											"name": "_supplier"
+										}
+									},
+									{
+										"source": {
+											"name": "_uprn"
+										},
+										"sink": {
+											"name": "_uprn"
+										}
+									},
+									{
+										"source": {
+											"name": "_postcode"
+										},
+										"sink": {
+											"name": "_postcode"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "FreedomFibre",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "rfsFileRows",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Fandw",
+								"type": "DatasetReference"
+							},
+							"name": "fandw"
+						},
+						{
+							"dataset": {
+								"referenceName": "FreedomFibre",
+								"type": "DatasetReference"
+							},
+							"name": "freedomFibre"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OutputCsv",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "select2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          uprn as string,",
+						"          address as string,",
+						"          postcode as string,",
+						"          town as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     wildcardPaths:['F&W/*'],",
+						"     partitionBy('hash', 1)) ~> fandw",
+						"source(output(",
+						"          uprn as string,",
+						"          postcode as string,",
+						"          address as string,",
+						"          town as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     wildcardPaths:['Freedom Fibre/*'],",
+						"     partitionBy('hash', 1)) ~> freedomFibre",
+						"fandw derive({_source} = \"fandw\",",
+						"          {_source_info} = '{' +\r",
+						"    '\"fandw\": ' + '{' + \r",
+						"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+						"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+						"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+						"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+						"    '}' +\r",
+						"'}',",
+						"          {_uprn} = uprn) ~> derivedColumn1",
+						"freedomFibre derive({_source} = \"freedomFibre\",",
+						"          {_source_info} = '{' +\r",
+						"    '\"freedomFibre\": ' + '{' + \r",
+						"        '\"uprn\": \"' + escape(uprn, 'json') + '\",' +\r",
+						"        '\"address\": \"' + escape(address, 'json') + '\",' +\r",
+						"        '\"postcode\": \"' + escape(postcode, 'json') + '\",' +\r",
+						"        '\"town\": \"' + escape(town, 'json') + '\"' +\r",
+						"    '}' +\r",
+						"'}',",
+						"          {_uprn} = uprn) ~> derivedColumn2",
+						"select1, select2 union(byName: true,",
+						"     partitionBy('hash', 1))~> union1",
+						"derivedColumn1 select(mapColumn(",
+						"          {_uprn},",
+						"          {_source},",
+						"          {_source_info},",
+						"          fandw_uprn = uprn,",
+						"          fandw_address = address,",
+						"          fandw_postcode = postcode,",
+						"          fandw_town = town",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn2 select(mapColumn(",
+						"          freedomFibre_uprn = uprn,",
+						"          freedomFibre_postcode = postcode,",
+						"          freedomFibre_address = address,",
+						"          freedomFibre_town = town,",
+						"          {_source},",
+						"          {_source_info},",
+						"          {_uprn}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"union1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TableStorageDedupeTest')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Insert or Update UPRN",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "PATCH",
+										"headers": {
+											"Accept": "application/json",
+											"Content-Type": "application/json"
+										},
+										"url": {
+											"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='@{mod(int(trim(item()._uprn)), 1000)}',RowKey='@{item()._uprn}')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
+											"type": "Expression"
+										},
+										"body": {
+											"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{replace(string(item()), '\"', '\\\"')}\"\n}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureTableSource",
+								"azureTableSourceIgnoreTableNotFound": false
+							},
+							"dataset": {
+								"referenceName": "rfsFileRows",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"test": {
+						"type": "Array"
+					},
+					"test2": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		}
+	]
+}
