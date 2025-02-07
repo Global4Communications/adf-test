@@ -22,7 +22,7 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "Lookup2",
+							"name": "UprnLookup",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -35,16 +35,15 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "CosmosDbSqlApiSource",
-									"query": {
-										"value": "SELECT * FROM uprns WHERE uprns._uprn = '@{item().uprn}'\n",
+									"type": "AzureTableSource",
+									"azureTableSourceQuery": {
+										"value": "_uprn eq '@{item()._uprn}'",
 										"type": "Expression"
 									},
-									"preferredRegions": [],
-									"detectDatetime": true
+									"azureTableSourceIgnoreTableNotFound": false
 								},
 								"dataset": {
-									"referenceName": "Nosql",
+									"referenceName": "rfsUprns",
 									"type": "DatasetReference"
 								},
 								"firstRowOnly": true
@@ -55,7 +54,7 @@
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "Lookup2",
+									"activity": "UprnLookup",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -64,13 +63,13 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@contains(activity('Lookup2').output, 'firstRow')",
+									"value": "@contains(activity('UprnLookup').output, 'firstRow')",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
 									{
-										"name": "Copy data1",
-										"type": "Copy",
+										"name": "Merge Uprn",
+										"type": "WebActivity",
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
@@ -81,77 +80,16 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"source": {
-												"type": "CosmosDbSqlApiSource",
-												"additionalColumns": [
-													{
-														"name": "_test",
-														"value": "test"
-													}
-												],
-												"query": {
-													"value": "select * from uprns c where c.id = '@{activity('Lookup2').output.firstRow.id}'",
-													"type": "Expression"
-												},
-												"preferredRegions": [],
-												"detectDatetime": true
+											"method": "PATCH",
+											"url": {
+												"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='R',RowKey='1')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
+												"type": "Expression"
 											},
-											"sink": {
-												"type": "CosmosDbSqlApiSink",
-												"writeBehavior": "upsert",
-												"disableMetricsCollection": false
-											},
-											"enableStaging": false,
-											"translator": {
-												"type": "TabularTranslator",
-												"mappings": [
-													{
-														"source": {
-															"path": "$['id']"
-														},
-														"sink": {
-															"path": "id"
-														}
-													},
-													{
-														"source": {
-															"path": "$['_PartitionKey']"
-														},
-														"sink": {
-															"path": "_PartitionKey"
-														}
-													},
-													{
-														"source": {
-															"path": "$['_uprn']"
-														},
-														"sink": {
-															"path": "_uprn"
-														}
-													},
-													{
-														"source": {
-															"path": "$['_test']"
-														},
-														"sink": {
-															"path": "_test"
-														}
-													}
-												]
+											"body": {
+												"value": "{\n    \"test\": \"@{activity('UprnLookup').output.firstRow._uprn}\"\n}\n",
+												"type": "Expression"
 											}
-										},
-										"inputs": [
-											{
-												"referenceName": "Nosql",
-												"type": "DatasetReference"
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "Nosql",
-												"type": "DatasetReference"
-											}
-										]
+										}
 									}
 								]
 							}
@@ -173,17 +111,12 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "ExcelSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"wildcardFolderPath": "F&W",
-							"wildcardFileName": "*",
-							"enablePartitionDiscovery": false
-						}
+						"type": "AzureTableSource",
+						"azureTableSourceQuery": "_uprn eq '100061765973'",
+						"azureTableSourceIgnoreTableNotFound": false
 					},
 					"dataset": {
-						"referenceName": "Fandw",
+						"referenceName": "rfsFileRows",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
