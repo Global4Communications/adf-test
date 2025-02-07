@@ -44,7 +44,7 @@
 									"type": "Expression"
 								},
 								"body": {
-									"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{string(item())}\"\n}",
+									"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{replace(string(item()), '\"', '\\\"')}\"\n}",
 									"type": "Expression"
 								}
 							}
