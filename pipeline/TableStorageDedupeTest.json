@@ -22,8 +22,8 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "UprnLookup",
-							"type": "Lookup",
+							"name": "Insert or Update UPRN",
+							"type": "WebActivity",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -34,68 +34,19 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "AzureTableSource",
-									"azureTableSourceQuery": {
-										"value": "_uprn eq '@{item()._uprn}'",
-										"type": "Expression"
-									},
-									"azureTableSourceIgnoreTableNotFound": false
+								"method": "PATCH",
+								"headers": {
+									"Accept": "application/json",
+									"Content-Type": "application/json"
 								},
-								"dataset": {
-									"referenceName": "rfsUprns",
-									"type": "DatasetReference"
-								},
-								"firstRowOnly": true
-							}
-						},
-						{
-							"name": "If Exists Then",
-							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "UprnLookup",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@contains(activity('UprnLookup').output, 'firstRow')",
+								"url": {
+									"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='@{mod(int(trim(item()._uprn)), 1000)}',RowKey='@{item()._uprn}')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
 									"type": "Expression"
 								},
-								"ifTrueActivities": [
-									{
-										"name": "Save row under supplier",
-										"type": "WebActivity",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"method": "PATCH",
-											"headers": {
-												"Content-Type": "application/json",
-												"Accept": "application/json"
-											},
-											"url": {
-												"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='R',RowKey='1')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
-												"type": "Expression"
-											},
-											"body": {
-												"value": "{\n    \"@{item()._supplier}\": \"@{item()}\"\n}\n",
-												"type": "Expression"
-											}
-										}
-									}
-								]
+								"body": {
+									"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{string(item())}\"\n}",
+									"type": "Expression"
+								}
 							}
 						}
 					]
@@ -116,7 +67,6 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureTableSource",
-						"azureTableSourceQuery": "_uprn eq '100061765973'",
 						"azureTableSourceIgnoreTableNotFound": false
 					},
 					"dataset": {
