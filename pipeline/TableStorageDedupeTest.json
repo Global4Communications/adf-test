@@ -68,7 +68,7 @@
 								},
 								"ifTrueActivities": [
 									{
-										"name": "Merge Uprn",
+										"name": "Save row under supplier",
 										"type": "WebActivity",
 										"dependsOn": [],
 										"policy": {
@@ -81,12 +81,16 @@
 										"userProperties": [],
 										"typeProperties": {
 											"method": "PATCH",
+											"headers": {
+												"Content-Type": "application/json",
+												"Accept": "application/json"
+											},
 											"url": {
 												"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='R',RowKey='1')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
 												"type": "Expression"
 											},
 											"body": {
-												"value": "{\n    \"test\": \"@{activity('UprnLookup').output.firstRow._uprn}\"\n}\n",
+												"value": "{\n    \"@{item()._supplier}\": \"@{item()}\"\n}\n",
 												"type": "Expression"
 											}
 										}
