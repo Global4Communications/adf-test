@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "NosqlUprns",
+						"referenceName": "OutputJson",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -51,14 +51,9 @@
 				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     deletable:true,",
-				"     insertable:true,",
-				"     updateable:true,",
-				"     upsertable:true,",
-				"     format: 'document',",
-				"     partitionKey: ['/_PartitionKey'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> sink1"
 			]
 		}
 	}
