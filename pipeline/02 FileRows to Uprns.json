@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,58 +15,19 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "CosmosDbSqlApiSource",
-						"preferredRegions": [],
-						"detectDatetime": true
+					"dataflow": {
+						"referenceName": "CosmosToTable",
+						"type": "DataFlowReference"
 					},
-					"sink": {
-						"type": "AzureTableSink",
-						"azureTableInsertType": "merge",
-						"azureTableDefaultPartitionKeyValue": {
-							"value": "@{string(rand(10000, 99999))}",
-							"type": "Expression"
-						},
-						"azureTableRowKeyName": "_Uprn",
-						"writeBatchSize": 10000
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
 					},
-					"enableStaging": false,
-					"parallelCopies": 1,
-					"enableSkipIncompatibleRow": true,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"path": "$['Fandw']"
-								},
-								"sink": {
-									"name": "Fandw"
-								}
-							},
-							{
-								"source": {
-									"path": "$['_Uprn']"
-								},
-								"sink": {
-									"name": "_Uprn"
-								}
-							}
-						]
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
 					}
-				},
-				"inputs": [
-					{
-						"referenceName": "NosqlFileRows",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "rfsUprns",
-						"type": "DatasetReference"
-					}
-				]
+				}
 			}
 		],
 		"folder": {
