@@ -12,14 +12,48 @@
 					"name": "NosqlFileRows"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "CosmosDbNoSql1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Dedupe",
+					"description": "Select distinct values.  If multiple entries for the same UPRN are found the use the latest values for each column"
+				}
+			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          {Freedom Fibre} as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+				"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+				"          {_PartitionKey} as string,",
+				"          {_Uprn} as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     container: 'FileRows',",
 				"     storeType: 'oltp',",
 				"     format: 'document',",
-				"     store: 'cosmosDB') ~> NosqlFileRows"
+				"     preferredRegions: ['UK South'],",
+				"     store: 'cosmosDB',",
+				"     partitionBy('hash', 1)) ~> NosqlFileRows",
+				"NosqlFileRows aggregate(groupBy({_Uprn}),",
+				"     each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> Dedupe",
+				"Dedupe sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'document',",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     store: 'cosmosDB',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
