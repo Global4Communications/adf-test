@@ -14,9 +14,9 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "OutputJson",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "AzureBlobStorage1",
+						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
 				}
@@ -46,11 +46,16 @@
 				"     store: 'cosmosDB',",
 				"     partitionBy('hash', 1)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
-				"     each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> Dedupe",
+				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
 				"Dedupe derive(id = {_Uprn},",
 				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'json',",
+				"     container: 'datafactory',",
+				"     folderPath: 'Output',",
+				"     truncate: true,",
+				"     partitionFileNames:[(concat(toString(partitionId()), '.json'))],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1) ~> sink1"
