@@ -28,23 +28,19 @@
 						"type": "ExcelSource",
 						"additionalColumns": [
 							{
-								"name": "_filepath",
+								"name": "_Filepath",
 								"value": "$$FILEPATH"
 							},
 							{
-								"name": "_filename",
+								"name": "_Filename",
 								"value": "$$FILENAME"
 							},
 							{
-								"name": "_supplier",
-								"value": "fandw"
-							},
-							{
-								"name": "_uprn",
+								"name": "_Uprn",
 								"value": "$$COLUMN:uprn"
 							},
 							{
-								"name": "_pipelinerunid",
+								"name": "_PipelineRunId",
 								"value": "@pipeline().RunId"
 							}
 						],
@@ -71,7 +67,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$['fandw']['uprn']"
+									"path": "$['Fandw']['uprn']"
 								}
 							},
 							{
@@ -80,7 +76,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$['fandw']['address']"
+									"path": "$['Fandw']['address']"
 								}
 							},
 							{
@@ -89,7 +85,7 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$['fandw']['postcode']"
+									"path": "$['Fandw']['postcode']"
 								}
 							},
 							{
@@ -98,51 +94,39 @@
 									"type": "String"
 								},
 								"sink": {
-									"path": "$['fandw']['town']"
+									"path": "$['Fandw']['town']"
 								}
 							},
 							{
 								"source": {
-									"name": "_filepath",
-									"type": "String"
+									"name": "_Filepath"
 								},
 								"sink": {
-									"path": "$['fandw']['_filepath']"
+									"path": "$['Fandw']['_Filepath']"
 								}
 							},
 							{
 								"source": {
-									"name": "_filename",
-									"type": "String"
+									"name": "_Filename"
 								},
 								"sink": {
-									"path": "$['_filename']"
+									"path": "$['Fandw']['_Filename']"
 								}
 							},
 							{
 								"source": {
-									"name": "_supplier",
-									"type": "String"
+									"name": "_Uprn"
 								},
 								"sink": {
-									"path": "$['_supplier']"
+									"path": "$['_Uprn']"
 								}
 							},
 							{
 								"source": {
-									"name": "_uprn",
-									"type": "String"
+									"name": "_PipelineRunId"
 								},
 								"sink": {
-									"path": "$['_uprn']"
-								}
-							},
-							{
-								"source": {
-									"name": "_pipelinerunid"
-								},
-								"sink": {
-									"path": "$['_pipelinerunid']"
+									"path": "$['_PartitionKey']"
 								}
 							}
 						]
@@ -156,7 +140,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "NosqlRfsUprns",
+						"referenceName": "NosqlFileRows",
 						"type": "DatasetReference"
 					}
 				]

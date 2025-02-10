@@ -44,7 +44,7 @@
 									"detectDatetime": true
 								},
 								"dataset": {
-									"referenceName": "NosqlRfsUprns",
+									"referenceName": "NosqlUprns",
 									"type": "DatasetReference"
 								},
 								"firstRowOnly": true
@@ -142,13 +142,13 @@
 										},
 										"inputs": [
 											{
-												"referenceName": "NosqlRfsUprns",
+												"referenceName": "NosqlUprns",
 												"type": "DatasetReference"
 											}
 										],
 										"outputs": [
 											{
-												"referenceName": "NosqlRfsUprns",
+												"referenceName": "NosqlUprns",
 												"type": "DatasetReference"
 											}
 										]
