@@ -1,0 +1,26 @@
+{
+	"name": "CosmosToTable",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "CosmosDbNoSql1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "NosqlFileRows"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     storeType: 'oltp',",
+				"     format: 'document',",
+				"     store: 'cosmosDB') ~> NosqlFileRows"
+			]
+		}
+	}
+}
