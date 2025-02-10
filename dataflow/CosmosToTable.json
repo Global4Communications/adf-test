@@ -25,6 +25,9 @@
 				{
 					"name": "Dedupe",
 					"description": "Select distinct values.  If multiple entries for the same UPRN are found the use the latest values for each column"
+				},
+				{
+					"name": "AdditionalColumns"
 				}
 			],
 			"scriptLines": [
@@ -44,13 +47,16 @@
 				"     partitionBy('hash', 1)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
 				"     each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> Dedupe",
-				"Dedupe sink(allowSchemaDrift: true,",
+				"Dedupe derive(id = {_Uprn},",
+				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
+				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     deletable:false,",
+				"     deletable:true,",
 				"     insertable:true,",
-				"     updateable:false,",
-				"     upsertable:false,",
+				"     updateable:true,",
+				"     upsertable:true,",
 				"     format: 'document',",
+				"     partitionKey: ['/_PartitionKey'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
