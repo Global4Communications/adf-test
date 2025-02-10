@@ -14,9 +14,9 @@
 			],
 			"sinks": [
 				{
-					"linkedService": {
-						"referenceName": "CosmosDbNoSql1",
-						"type": "LinkedServiceReference"
+					"dataset": {
+						"referenceName": "NosqlUprns",
+						"type": "DatasetReference"
 					},
 					"name": "sink1"
 				}
@@ -46,12 +46,11 @@
 				"     each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> Dedupe",
 				"Dedupe sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
 				"     format: 'document',",
-				"     deletable: false,",
-				"     insertable: true,",
-				"     updateable: false,",
-				"     upsertable: false,",
-				"     store: 'cosmosDB',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
