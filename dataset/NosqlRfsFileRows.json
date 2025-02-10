@@ -1,5 +1,5 @@
 {
-	"name": "NosqlRfsUprns",
+	"name": "NosqlRfsFileRows",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "CosmosDbNoSql1",
@@ -12,7 +12,7 @@
 		"type": "CosmosDbSqlApiCollection",
 		"schema": {},
 		"typeProperties": {
-			"collectionName": "rfsUprns"
+			"collectionName": "rfsFileRows"
 		}
 	}
 }
