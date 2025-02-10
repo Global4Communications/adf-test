@@ -55,6 +55,323 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/01 Fandw to FileRows')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "datafactory/F&W/"
+							},
+							{
+								"name": "Destination",
+								"value": "testCollection1"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"additionalColumns": [
+									{
+										"name": "_Filepath",
+										"value": "$$FILEPATH"
+									},
+									{
+										"name": "_Filename",
+										"value": "$$FILENAME"
+									},
+									{
+										"name": "_Uprn",
+										"value": "$$COLUMN:uprn"
+									},
+									{
+										"name": "_PipelineRunId",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": "F&W",
+									"wildcardFileName": "*.xlsx",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "CosmosDbSqlApiSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "uprn",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Fandw']['uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "address",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Fandw']['address']"
+										}
+									},
+									{
+										"source": {
+											"name": "postcode",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Fandw']['postcode']"
+										}
+									},
+									{
+										"source": {
+											"name": "town",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Fandw']['town']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Filepath"
+										},
+										"sink": {
+											"path": "$['Fandw']['_Filepath']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Filename"
+										},
+										"sink": {
+											"path": "$['Fandw']['_Filename']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Uprn"
+										},
+										"sink": {
+											"path": "$['_Uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "_PipelineRunId"
+										},
+										"sink": {
+											"path": "$['_PartitionKey']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Fandw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "NosqlFileRows",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TestCosmosToTable"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Fandw')]",
+				"[concat(variables('factoryId'), '/datasets/NosqlFileRows')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02 FileRows to Uprns')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "CosmosToTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"NosqlFileRows": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Output",
+									"wildcardFileName": "*.json",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTablePartitionKeyName": {
+									"value": "_PartitionKey",
+									"type": "Expression"
+								},
+								"azureTableRowKeyName": {
+									"value": "_Uprn",
+									"type": "Expression"
+								},
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['_Uprn']"
+										},
+										"sink": {
+											"name": "_Uprn"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Freedom Fibre']"
+										},
+										"sink": {
+											"name": "FreedomFibre"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Fandw']"
+										},
+										"sink": {
+											"name": "Fandw"
+										}
+									}
+								],
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OutputJson",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "rfsUprns",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TestCosmosToTable"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]",
+				"[concat(variables('factoryId'), '/datasets/OutputJson')]",
+				"[concat(variables('factoryId'), '/datasets/rfsUprns')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/FandwCosmosForMongoTest')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -102,7 +419,7 @@
 											"detectDatetime": true
 										},
 										"dataset": {
-											"referenceName": "Nosql",
+											"referenceName": "NosqlUprns",
 											"type": "DatasetReference",
 											"parameters": {}
 										},
@@ -201,14 +518,14 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "Nosql",
+														"referenceName": "NosqlUprns",
 														"type": "DatasetReference",
 														"parameters": {}
 													}
 												],
 												"outputs": [
 													{
-														"referenceName": "Nosql",
+														"referenceName": "NosqlUprns",
 														"type": "DatasetReference",
 														"parameters": {}
 													}
@@ -267,7 +584,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/Nosql')]"
+				"[concat(variables('factoryId'), '/datasets/NosqlUprns')]"
 			]
 		},
 		{
@@ -794,6 +1111,105 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/TableStorageDedupeTest')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Insert or Update UPRN",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "PATCH",
+										"headers": {
+											"Accept": "application/json",
+											"Content-Type": "application/json"
+										},
+										"url": {
+											"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='@{mod(int(trim(item()._uprn)), 1000)}',RowKey='@{item()._uprn}')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
+											"type": "Expression"
+										},
+										"body": {
+											"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{replace(string(item()), '\"', '\\\"')}\"\n}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureTableSource",
+								"azureTableSourceIgnoreTableNotFound": false
+							},
+							"dataset": {
+								"referenceName": "rfsFileRows",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"test": {
+						"type": "Array"
+					},
+					"test2": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/rfsFileRows')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/CosmosDbMongoDbCollection2')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -964,13 +1380,39 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Nosql')]",
+			"name": "[concat(parameters('factoryName'), '/NosqlFileRows')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "CosmosDbNoSql1",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Nosql"
+				},
+				"annotations": [],
+				"type": "CosmosDbSqlApiCollection",
+				"schema": {},
+				"typeProperties": {
+					"collectionName": "FileRows"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/CosmosDbNoSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/NosqlUprns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CosmosDbNoSql1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Nosql"
 				},
 				"annotations": [],
 				"type": "CosmosDbSqlApiCollection",
@@ -1015,26 +1457,30 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/rfsFileRows')]",
+			"name": "[concat(parameters('factoryName'), '/OutputJson')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "alextestsa2_tableStorage",
+					"referenceName": "AzureBlobStorage1",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "alextestsa2/Table Storage"
+					"name": "alextestsa2/Blob Storage"
 				},
 				"annotations": [],
-				"type": "AzureTable",
-				"schema": [],
+				"type": "Json",
 				"typeProperties": {
-					"tableName": "rfsFileRows"
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Output",
+						"container": "datafactory"
+					}
+				},
+				"schema": {}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
 			]
 		},
 		{
@@ -1076,6 +1522,52 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/CosmosDbMongoDb2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rfsFileRows')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alextestsa2_tableStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "alextestsa2/Table Storage"
+				},
+				"annotations": [],
+				"type": "AzureTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "rfsFileRows"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rfsUprns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alextestsa2_tableStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "alextestsa2/Table Storage"
+				},
+				"annotations": [],
+				"type": "AzureTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "rfsUprns"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
 			]
 		},
 		{
@@ -1168,6 +1660,77 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CosmosToTable')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "CosmosDbNoSql1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "NosqlFileRows"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Dedupe",
+							"description": "Select distinct values.  If multiple entries for the same UPRN are found the use the latest values for each column"
+						},
+						{
+							"name": "AdditionalColumns"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          {Freedom Fibre} as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+						"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+						"          {_PartitionKey} as string,",
+						"          {_Uprn} as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     container: 'FileRows',",
+						"     storeType: 'oltp',",
+						"     format: 'document',",
+						"     preferredRegions: ['UK South'],",
+						"     store: 'cosmosDB',",
+						"     partitionBy('hash', 1)) ~> NosqlFileRows",
+						"NosqlFileRows aggregate(groupBy({_Uprn}),",
+						"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
+						"Dedupe derive(id = {_Uprn},",
+						"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
+						"AdditionalColumns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'json',",
+						"     container: 'datafactory',",
+						"     folderPath: 'Output',",
+						"     truncate: true,",
+						"     partitionFileNames:[(concat(toString(partitionId()), '.json'))],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/CosmosDbNoSql1')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
@@ -1296,128 +1859,6 @@
 				"[concat(variables('factoryId'), '/datasets/Fandw')]",
 				"[concat(variables('factoryId'), '/datasets/FreedomFibre')]",
 				"[concat(variables('factoryId'), '/datasets/OutputCsv')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TableStorageDedupeTest')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup1').output.value",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Insert or Update UPRN",
-									"type": "WebActivity",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"method": "PATCH",
-										"headers": {
-											"Accept": "application/json",
-											"Content-Type": "application/json"
-										},
-										"url": {
-											"value": "https://alextestsa2.table.core.windows.net/rfsUprns(PartitionKey='@{mod(int(trim(item()._uprn)), 1000)}',RowKey='@{item()._uprn}')?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupyx&se=2025-02-07T16:59:50Z&st=2025-02-07T08:59:50Z&spr=https&sig=qbKsLp2dWW4DVDr%2FaRdNTr1NFxfLeIl3JOiSH2PjJGc%3D",
-											"type": "Expression"
-										},
-										"body": {
-											"value": "{\n    \"_uprn\": @{item()._uprn},\n    \"@{replace(item()._supplier, ' ', '')}\": \"@{replace(string(item()), '\"', '\\\"')}\"\n}",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureTableSource",
-								"azureTableSourceIgnoreTableNotFound": false
-							},
-							"dataset": {
-								"referenceName": "rfsFileRows",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"test": {
-						"type": "Array"
-					},
-					"test2": {
-						"type": "Array"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/rfsFileRows')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/rfsUprns')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "alextestsa2_tableStorage",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "alextestsa2/Table Storage"
-				},
-				"annotations": [],
-				"type": "AzureTable",
-				"schema": [],
-				"typeProperties": {
-					"tableName": "rfsUprns"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
 			]
 		}
 	]

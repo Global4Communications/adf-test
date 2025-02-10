@@ -316,13 +316,39 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Nosql')]",
+			"name": "[concat(parameters('factoryName'), '/NosqlFileRows')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "CosmosDbNoSql1",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Nosql"
+				},
+				"annotations": [],
+				"type": "CosmosDbSqlApiCollection",
+				"schema": {},
+				"typeProperties": {
+					"collectionName": "FileRows"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/CosmosDbNoSql1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/NosqlUprns')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CosmosDbNoSql1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Nosql"
 				},
 				"annotations": [],
 				"type": "CosmosDbSqlApiCollection",
@@ -367,26 +393,30 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/rfsFileRows')]",
+			"name": "[concat(parameters('factoryName'), '/OutputJson')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "alextestsa2_tableStorage",
+					"referenceName": "AzureBlobStorage1",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
-					"name": "alextestsa2/Table Storage"
+					"name": "alextestsa2/Blob Storage"
 				},
 				"annotations": [],
-				"type": "AzureTable",
-				"schema": [],
+				"type": "Json",
 				"typeProperties": {
-					"tableName": "rfsFileRows"
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Output",
+						"container": "datafactory"
+					}
+				},
+				"schema": {}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
 			]
 		},
 		{
@@ -431,6 +461,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/rfsFileRows')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alextestsa2_tableStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "alextestsa2/Table Storage"
+				},
+				"annotations": [],
+				"type": "AzureTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "rfsFileRows"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/rfsUprns')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -451,404 +504,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/FandwCosmosForMongoTest')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup1').output.value",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Lookup2",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "CosmosDbSqlApiSource",
-											"query": {
-												"value": "SELECT * FROM uprns WHERE uprns._uprn = '@{item().uprn}'\n",
-												"type": "Expression"
-											},
-											"preferredRegions": [],
-											"detectDatetime": true
-										},
-										"dataset": {
-											"referenceName": "Nosql",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "If Exists Then",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Lookup2",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@contains(activity('Lookup2').output, 'firstRow')",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "Copy data1",
-												"type": "Copy",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "CosmosDbSqlApiSource",
-														"additionalColumns": [
-															{
-																"name": "_test",
-																"value": "test"
-															}
-														],
-														"query": {
-															"value": "select * from uprns c where c.id = '@{activity('Lookup2').output.firstRow.id}'",
-															"type": "Expression"
-														},
-														"preferredRegions": [],
-														"detectDatetime": true
-													},
-													"sink": {
-														"type": "CosmosDbSqlApiSink",
-														"writeBehavior": "upsert",
-														"disableMetricsCollection": false
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"mappings": [
-															{
-																"source": {
-																	"path": "$['id']"
-																},
-																"sink": {
-																	"path": "id"
-																}
-															},
-															{
-																"source": {
-																	"path": "$['_PartitionKey']"
-																},
-																"sink": {
-																	"path": "_PartitionKey"
-																}
-															},
-															{
-																"source": {
-																	"path": "$['_uprn']"
-																},
-																"sink": {
-																	"path": "_uprn"
-																}
-															},
-															{
-																"source": {
-																	"path": "$['_test']"
-																},
-																"sink": {
-																	"path": "_test"
-																}
-															}
-														]
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "Nosql",
-														"type": "DatasetReference",
-														"parameters": {}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "Nosql",
-														"type": "DatasetReference",
-														"parameters": {}
-													}
-												]
-											}
-										]
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"wildcardFolderPath": "F&W",
-									"wildcardFileName": "*",
-									"enablePartitionDiscovery": false
-								}
-							},
-							"dataset": {
-								"referenceName": "Fandw",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"test": {
-						"type": "Array"
-					},
-					"test2": {
-						"type": "Array"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/Nosql')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Fandw_TableStorage')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "datafactory/F&W/"
-							},
-							{
-								"name": "Destination",
-								"value": "testCollection1"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"additionalColumns": [
-									{
-										"name": "_filepath",
-										"value": "$$FILEPATH"
-									},
-									{
-										"name": "_filename",
-										"value": "$$FILENAME"
-									},
-									{
-										"name": "_supplier",
-										"value": "fandw"
-									},
-									{
-										"name": "_uprn",
-										"value": "$$COLUMN:uprn"
-									},
-									{
-										"name": "_postcode",
-										"value": "$$COLUMN:postcode"
-									}
-								],
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": false,
-									"wildcardFolderPath": "F&W",
-									"wildcardFileName": "*.xlsx",
-									"enablePartitionDiscovery": false
-								}
-							},
-							"sink": {
-								"type": "AzureTableSink",
-								"azureTableInsertType": "merge",
-								"azureTableDefaultPartitionKeyValue": "main",
-								"writeBatchSize": 10000
-							},
-							"enableStaging": false,
-							"enableSkipIncompatibleRow": true,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "uprn",
-											"type": "String"
-										},
-										"sink": {
-											"name": "uprn"
-										}
-									},
-									{
-										"source": {
-											"name": "address",
-											"type": "String"
-										},
-										"sink": {
-											"name": "address"
-										}
-									},
-									{
-										"source": {
-											"name": "postcode",
-											"type": "String"
-										},
-										"sink": {
-											"name": "postcode"
-										}
-									},
-									{
-										"source": {
-											"name": "town",
-											"type": "String"
-										},
-										"sink": {
-											"name": "town"
-										}
-									},
-									{
-										"source": {
-											"name": "_filename"
-										},
-										"sink": {
-											"name": "_filename"
-										}
-									},
-									{
-										"source": {
-											"name": "_filepath"
-										},
-										"sink": {
-											"name": "_filepath"
-										}
-									},
-									{
-										"source": {
-											"name": "_supplier"
-										},
-										"sink": {
-											"name": "_supplier"
-										}
-									},
-									{
-										"source": {
-											"name": "_uprn",
-											"type": "String"
-										},
-										"sink": {
-											"name": "_uprn"
-										}
-									},
-									{
-										"source": {
-											"name": "_postcode"
-										},
-										"sink": {
-											"name": "_postcode"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "Fandw",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "rfsFileRows",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Fandw')]",
-				"[concat(variables('factoryId'), '/datasets/rfsFileRows')]"
 			]
 		}
 	]
