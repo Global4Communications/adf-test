@@ -1,0 +1,22 @@
+{
+	"name": "OutputJson",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "alextestsa2/Blob Storage"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "Output",
+				"container": "datafactory"
+			}
+		},
+		"schema": {}
+	}
+}
