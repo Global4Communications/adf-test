@@ -65,10 +65,7 @@
 					"sink": {
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
-						"azureTablePartitionKeyName": {
-							"value": "PartitionKey",
-							"type": "Expression"
-						},
+						"azureTablePartitionKeyName": "PartitionKey",
 						"azureTableRowKeyName": "_Uprn",
 						"writeBatchSize": 10000
 					},
@@ -107,6 +104,14 @@
 								},
 								"sink": {
 									"name": "CityFibreDirect"
+								}
+							},
+							{
+								"source": {
+									"path": "$['PartitionKey']"
+								},
+								"sink": {
+									"name": "PartitionKey"
 								}
 							}
 						],
