@@ -13,70 +13,99 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/CosmosToTable')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/CityFibreDirectFile')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"type": "MappingDataFlow",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "alextestsa2/Blob Storage"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "CosmosDbNoSql1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "NosqlFileRows"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "AzureBlobStorage1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "Dedupe",
-							"description": "Select distinct values.  If multiple entries for the same UPRN are found the use the latest values for each column"
-						},
-						{
-							"name": "AdditionalColumns"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          {Freedom Fibre} as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
-						"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
-						"          {_PartitionKey} as string,",
-						"          {_Uprn} as long",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     container: 'FileRows',",
-						"     storeType: 'oltp',",
-						"     format: 'document',",
-						"     preferredRegions: ['UK South'],",
-						"     store: 'cosmosDB',",
-						"     partitionBy('hash', 1)) ~> NosqlFileRows",
-						"NosqlFileRows aggregate(groupBy({_Uprn}),",
-						"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
-						"Dedupe derive(id = {_Uprn},",
-						"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
-						"AdditionalColumns sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'json',",
-						"     container: 'datafactory',",
-						"     folderPath: 'Output',",
-						"     truncate: true,",
-						"     partitionFileNames:[(concat(toString(partitionId()), '.json'))],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1) ~> sink1"
-					]
-				}
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "CF Direct RFS - 1k sample.csv",
+						"folderPath": "City Fibre Direct",
+						"container": "datafactory"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "cabinet_city",
+						"type": "String"
+					},
+					{
+						"name": "secondary_node",
+						"type": "String"
+					},
+					{
+						"name": "uprn",
+						"type": "String"
+					},
+					{
+						"name": "full_address",
+						"type": "String"
+					},
+					{
+						"name": "post_code",
+						"type": "String"
+					},
+					{
+						"name": "dr_status",
+						"type": "String"
+					},
+					{
+						"name": "blpu_classification",
+						"type": "String"
+					},
+					{
+						"name": "installation_date",
+						"type": "String"
+					},
+					{
+						"name": "property_flags",
+						"type": "String"
+					},
+					{
+						"name": "demand_point_type",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OutputParquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "alextestsa2/Blob Storage"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Output",
+						"container": "datafactory"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
 			},
 			"dependsOn": []
 		},
@@ -244,151 +273,6 @@
 				"annotations": []
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/02 FileRows to Uprns')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "CosmosToTable",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"NosqlFileRows": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "None",
-							"cacheSinks": {
-								"firstRowOnly": true
-							}
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Data flow1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"wildcardFolderPath": "Output",
-									"wildcardFileName": "*.json",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "AzureTableSink",
-								"azureTableInsertType": "merge",
-								"azureTablePartitionKeyName": {
-									"value": "_PartitionKey",
-									"type": "Expression"
-								},
-								"azureTableRowKeyName": {
-									"value": "_Uprn",
-									"type": "Expression"
-								},
-								"writeBatchSize": 10000
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['_Uprn']"
-										},
-										"sink": {
-											"name": "_Uprn"
-										}
-									},
-									{
-										"source": {
-											"path": "$['Freedom Fibre']"
-										},
-										"sink": {
-											"name": "FreedomFibre"
-										}
-									},
-									{
-										"source": {
-											"path": "$['Fandw']"
-										},
-										"sink": {
-											"name": "Fandw"
-										}
-									}
-								],
-								"mapComplexValuesToString": true
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "OutputJson",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "rfsUprns",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "TestCosmosToTable"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/FandwCosmosForMongoTest')]",
@@ -1215,6 +1099,78 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CosmosToTable')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "CosmosDbNoSql1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "NosqlFileRows"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OutputJson",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "Dedupe",
+							"description": "Select distinct values.  If multiple entries for the same UPRN are found the use the latest values for each column"
+						},
+						{
+							"name": "AdditionalColumns"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CityFibreDirect as (uprn as long, full_address as string, {_Filepath} as string, {_Filename} as string),",
+						"          FreedomFibre as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+						"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+						"          {_PartitionKey} as string,",
+						"          {_Uprn} as long",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     container: 'FileRows',",
+						"     storeType: 'oltp',",
+						"     format: 'document',",
+						"     store: 'cosmosDB',",
+						"     partitionBy('roundRobin', 4)) ~> NosqlFileRows",
+						"NosqlFileRows aggregate(groupBy({_Uprn}),",
+						"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$)),",
+						"     partitionBy('roundRobin', 4)) ~> Dedupe",
+						"Dedupe derive(id = {_Uprn},",
+						"          {_PartitionKey} = mod({_Uprn}, 1000),",
+						"     partitionBy('roundRobin', 4)) ~> AdditionalColumns",
+						"AdditionalColumns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     filePattern:'output-[n].json',",
+						"     truncate: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     partitionBy('roundRobin', 4)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1338,6 +1294,331 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/01 City Fibre Direct to FileRows')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "datafactory/F&W/"
+							},
+							{
+								"name": "Destination",
+								"value": "testCollection1"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"additionalColumns": [
+									{
+										"name": "_Filepath",
+										"value": "$$FILEPATH"
+									},
+									{
+										"name": "_Filename",
+										"value": "$$FILENAME"
+									},
+									{
+										"name": "_Uprn",
+										"value": "$$COLUMN:uprn"
+									},
+									{
+										"name": "_PipelineRunId",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"modifiedDatetimeStart": "2025-02-11T11:31:00.000Z",
+									"wildcardFolderPath": "City Fibre Direct",
+									"wildcardFileName": "*.csv",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "CosmosDbSqlApiSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "uprn",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['CityFibreDirect']['uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "full_address",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['CityFibreDirect']['full_address']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Filepath"
+										},
+										"sink": {
+											"path": "$['CityFibreDirect']['_Filepath']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Filename"
+										},
+										"sink": {
+											"path": "$['CityFibreDirect']['_Filename']"
+										}
+									},
+									{
+										"source": {
+											"name": "_Uprn"
+										},
+										"sink": {
+											"path": "$['_Uprn']"
+										}
+									},
+									{
+										"source": {
+											"name": "_PipelineRunId"
+										},
+										"sink": {
+											"path": "$['_PartitionKey']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "CityFibreDirectFile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "NosqlFileRows",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TestCosmosToTable"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CityFibreDirectFile')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02 FileRows to Uprns')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "CosmosToTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"NosqlFileRows": {},
+									"sink1": {}
+								},
+								"linkedServiceParameters": {}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Output",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTablePartitionKeyName": {
+									"value": "_PartitionKey",
+									"type": "Expression"
+								},
+								"azureTableRowKeyName": {
+									"value": "_Uprn",
+									"type": "Expression"
+								},
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "_PartitionKey"
+										},
+										"sink": {
+											"name": "PartitionKey",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "_Uprn"
+										},
+										"sink": {
+											"name": "RowKey",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CityFibreDirect"
+										},
+										"sink": {
+											"name": "CityFibreDirect",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Fandw"
+										},
+										"sink": {
+											"name": "Fandw",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "FreedomFibre"
+										},
+										"sink": {
+											"name": "FreedomFibre",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OutputParquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "rfsUprns",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "TestCosmosToTable"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]",
+				"[concat(variables('factoryId'), '/datasets/OutputParquet')]"
+			]
 		}
 	]
 }
