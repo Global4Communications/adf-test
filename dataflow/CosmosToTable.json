@@ -46,16 +46,19 @@
 				"     store: 'cosmosDB',",
 				"     partitionBy('hash', 1)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
-				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
+				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$)),",
+				"     partitionBy('hash', 1)) ~> Dedupe",
 				"Dedupe derive(id = {_Uprn},",
-				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
+				"          {_PartitionKey} = mod({_Uprn}, 1000),",
+				"     partitionBy('hash', 1)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     filePattern:'filename-[n].json',",
 				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1) ~> sink1"
+				"     saveOrder: 1,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
