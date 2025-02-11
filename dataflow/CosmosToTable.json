@@ -52,7 +52,7 @@
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
 				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
 				"Dedupe derive(id = {_Uprn},",
-				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
+				"          PartitionKey = toString(mod({_Uprn}, 1000))) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     filePattern:'output-[n].json',",

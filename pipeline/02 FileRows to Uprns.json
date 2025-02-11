@@ -66,13 +66,10 @@
 						"type": "AzureTableSink",
 						"azureTableInsertType": "merge",
 						"azureTablePartitionKeyName": {
-							"value": "_PartitionKey",
+							"value": "PartitionKey",
 							"type": "Expression"
 						},
-						"azureTableRowKeyName": {
-							"value": "_Uprn",
-							"type": "Expression"
-						},
+						"azureTableRowKeyName": "_Uprn",
 						"writeBatchSize": 10000
 					},
 					"enableStaging": false,
