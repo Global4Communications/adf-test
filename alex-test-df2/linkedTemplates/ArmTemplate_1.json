@@ -1509,16 +1509,16 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "ParquetSource",
+								"type": "JsonSource",
 								"storeSettings": {
 									"type": "AzureBlobStorageReadSettings",
 									"recursive": true,
 									"wildcardFolderPath": "Output",
-									"wildcardFileName": "*.parquet",
+									"wildcardFileName": "*.json",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
-									"type": "ParquetReadSettings"
+									"type": "JsonReadSettings"
 								}
 							},
 							"sink": {
@@ -1540,60 +1540,44 @@
 								"mappings": [
 									{
 										"source": {
-											"name": "_PartitionKey"
+											"path": "$['_Uprn']"
 										},
 										"sink": {
-											"name": "PartitionKey",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
 											"name": "_Uprn"
-										},
-										"sink": {
-											"name": "RowKey",
-											"type": "String"
 										}
 									},
 									{
 										"source": {
-											"name": "CityFibreDirect"
-										},
-										"sink": {
-											"name": "CityFibreDirect",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Fandw"
-										},
-										"sink": {
-											"name": "Fandw",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "FreedomFibre"
+											"path": "$['Freedom Fibre']"
 										},
 										"sink": {
 											"name": "FreedomFibre",
 											"type": "String"
 										}
+									},
+									{
+										"source": {
+											"path": "$['Fandw']"
+										},
+										"sink": {
+											"name": "Fandw"
+										}
+									},
+									{
+										"source": {
+											"path": "$['CityFibreDirect']"
+										},
+										"sink": {
+											"name": "CityFibreDirect"
+										}
 									}
 								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
+								"mapComplexValuesToString": true
 							}
 						},
 						"inputs": [
 							{
-								"referenceName": "OutputParquet",
+								"referenceName": "OutputJson",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -1616,8 +1600,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]",
-				"[concat(variables('factoryId'), '/datasets/OutputParquet')]"
+				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]"
 			]
 		}
 	]
