@@ -51,7 +51,7 @@
 				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     filePattern:'output[n].json',",
+				"     filePattern:'filename-[n].json',",
 				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
