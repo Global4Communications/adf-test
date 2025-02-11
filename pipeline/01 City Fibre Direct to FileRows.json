@@ -1,0 +1,142 @@
+{
+	"name": "01 City Fibre Direct to FileRows",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "datafactory/F&W/"
+					},
+					{
+						"name": "Destination",
+						"value": "testCollection1"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "_Filepath",
+								"value": "$$FILEPATH"
+							},
+							{
+								"name": "_Filename",
+								"value": "$$FILENAME"
+							},
+							{
+								"name": "_Uprn",
+								"value": "$$COLUMN:uprn"
+							},
+							{
+								"name": "_PipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": "City Fibre Direct",
+							"wildcardFileName": "*.csv",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "CosmosDbSqlApiSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uprn",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['CityFibreDirect']['uprn']"
+								}
+							},
+							{
+								"source": {
+									"name": "full_address",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['CityFibreDirect']['full_address']"
+								}
+							},
+							{
+								"source": {
+									"name": "_Filepath"
+								},
+								"sink": {
+									"path": "$['CityFibreDirect']['_Filepath']"
+								}
+							},
+							{
+								"source": {
+									"name": "_Filename"
+								},
+								"sink": {
+									"path": "$['CityFibreDirect']['_Filename']"
+								}
+							},
+							{
+								"source": {
+									"name": "_Uprn"
+								},
+								"sink": {
+									"path": "$['_Uprn']"
+								}
+							},
+							{
+								"source": {
+									"name": "_PipelineRunId"
+								},
+								"sink": {
+									"path": "$['_PartitionKey']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "CityFibreDirectFile",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "NosqlFileRows",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "TestCosmosToTable"
+		},
+		"annotations": []
+	}
+}

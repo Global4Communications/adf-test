@@ -1,0 +1,68 @@
+{
+	"name": "CityFibreDirectFile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "alextestsa2/Blob Storage"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "CF Direct RFS - 1k sample.csv",
+				"folderPath": "City Fibre Direct",
+				"container": "datafactory"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "cabinet_city",
+				"type": "String"
+			},
+			{
+				"name": "secondary_node",
+				"type": "String"
+			},
+			{
+				"name": "uprn",
+				"type": "String"
+			},
+			{
+				"name": "full_address",
+				"type": "String"
+			},
+			{
+				"name": "post_code",
+				"type": "String"
+			},
+			{
+				"name": "dr_status",
+				"type": "String"
+			},
+			{
+				"name": "blpu_classification",
+				"type": "String"
+			},
+			{
+				"name": "installation_date",
+				"type": "String"
+			},
+			{
+				"name": "property_flags",
+				"type": "String"
+			},
+			{
+				"name": "demand_point_type",
+				"type": "String"
+			}
+		]
+	}
+}
