@@ -14,11 +14,15 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "OutputJson",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "AzureBlobStorage1",
+						"type": "LinkedServiceReference"
 					},
-					"name": "sink1"
+					"name": "sink1",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureBlobStorage1",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [
@@ -33,6 +37,7 @@
 			"scriptLines": [
 				"source(output(",
 				"          {Freedom Fibre} as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
+				"          CityFibreDirect as (uprn as long, full_address as string, {_Filepath} as string, {_Filename} as string),",
 				"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
 				"          {_PartitionKey} as string,",
 				"          {_Uprn} as long",
@@ -44,21 +49,24 @@
 				"     format: 'document',",
 				"     preferredRegions: ['UK South'],",
 				"     store: 'cosmosDB',",
-				"     partitionBy('hash', 1)) ~> NosqlFileRows",
+				"     partitionBy('roundRobin', 4)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
 				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$)),",
-				"     partitionBy('hash', 1)) ~> Dedupe",
+				"     partitionBy('roundRobin', 4)) ~> Dedupe",
 				"Dedupe derive(id = {_Uprn},",
 				"          {_PartitionKey} = mod({_Uprn}, 1000),",
-				"     partitionBy('hash', 1)) ~> AdditionalColumns",
+				"     partitionBy('roundRobin', 4)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     filePattern:'filename-[n].json',",
+				"     format: 'json',",
+				"     container: 'datafactory',",
+				"     folderPath: 'Output',",
 				"     truncate: true,",
+				"     filePattern:'filename-[n].json',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
-				"     partitionBy('hash', 1)) ~> sink1"
+				"     partitionBy('roundRobin', 4)) ~> sink1"
 			]
 		}
 	}
