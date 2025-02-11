@@ -36,8 +36,8 @@
 			],
 			"scriptLines": [
 				"source(output(",
-				"          {Freedom Fibre} as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
 				"          CityFibreDirect as (uprn as long, full_address as string, {_Filepath} as string, {_Filename} as string),",
+				"          FreedomFibre as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
 				"          Fandw as (uprn as long, address as string, postcode as string, town as string, {_Filepath} as string, {_Filename} as string),",
 				"          {_PartitionKey} as string,",
 				"          {_Uprn} as long",
@@ -47,7 +47,6 @@
 				"     container: 'FileRows',",
 				"     storeType: 'oltp',",
 				"     format: 'document',",
-				"     preferredRegions: ['UK South'],",
 				"     store: 'cosmosDB',",
 				"     partitionBy('roundRobin', 4)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
