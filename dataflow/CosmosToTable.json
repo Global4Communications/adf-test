@@ -48,21 +48,18 @@
 				"     storeType: 'oltp',",
 				"     format: 'document',",
 				"     store: 'cosmosDB',",
-				"     partitionBy('roundRobin', 4)) ~> NosqlFileRows",
+				"     partitionBy('roundRobin', 6)) ~> NosqlFileRows",
 				"NosqlFileRows aggregate(groupBy({_Uprn}),",
-				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$)),",
-				"     partitionBy('roundRobin', 4)) ~> Dedupe",
+				"     each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> Dedupe",
 				"Dedupe derive(id = {_Uprn},",
-				"          {_PartitionKey} = mod({_Uprn}, 1000),",
-				"     partitionBy('roundRobin', 4)) ~> AdditionalColumns",
+				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     filePattern:'output-[n].json',",
 				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1,",
-				"     partitionBy('roundRobin', 4)) ~> sink1"
+				"     saveOrder: 1) ~> sink1"
 			]
 		}
 	}
