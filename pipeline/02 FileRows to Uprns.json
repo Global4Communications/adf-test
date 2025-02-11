@@ -50,16 +50,16 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "JsonSource",
+						"type": "ParquetSource",
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
 							"wildcardFolderPath": "Output",
-							"wildcardFileName": "*.json",
+							"wildcardFileName": "*.parquet",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
-							"type": "JsonReadSettings"
+							"type": "ParquetReadSettings"
 						}
 					},
 					"sink": {
@@ -81,43 +81,60 @@
 						"mappings": [
 							{
 								"source": {
-									"path": "$['_Uprn']"
+									"name": "_PartitionKey"
 								},
 								"sink": {
+									"name": "PartitionKey",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
 									"name": "_Uprn"
+								},
+								"sink": {
+									"name": "RowKey",
+									"type": "String"
 								}
 							},
 							{
 								"source": {
-									"path": "$['Freedom Fibre']"
-								},
-								"sink": {
-									"name": "FreedomFibre"
-								}
-							},
-							{
-								"source": {
-									"path": "$['Fandw']"
-								},
-								"sink": {
-									"name": "Fandw"
-								}
-							},
-							{
-								"source": {
-									"path": "$['CityFibreDirect']"
-								},
-								"sink": {
 									"name": "CityFibreDirect"
+								},
+								"sink": {
+									"name": "CityFibreDirect",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Fandw"
+								},
+								"sink": {
+									"name": "Fandw",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "FreedomFibre"
+								},
+								"sink": {
+									"name": "FreedomFibre",
+									"type": "String"
 								}
 							}
 						],
-						"mapComplexValuesToString": true
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
 					}
 				},
 				"inputs": [
 					{
-						"referenceName": "OutputJson",
+						"referenceName": "OutputParquet",
 						"type": "DatasetReference"
 					}
 				],
