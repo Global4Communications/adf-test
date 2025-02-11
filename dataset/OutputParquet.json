@@ -1,0 +1,23 @@
+{
+	"name": "OutputParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "alextestsa2/Blob Storage"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "Output",
+				"container": "datafactory"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

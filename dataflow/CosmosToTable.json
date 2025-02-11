@@ -14,9 +14,9 @@
 			],
 			"sinks": [
 				{
-					"linkedService": {
-						"referenceName": "AzureBlobStorage1",
-						"type": "LinkedServiceReference"
+					"dataset": {
+						"referenceName": "OutputParquet",
+						"type": "DatasetReference"
 					},
 					"name": "sink1",
 					"rejectedDataLinkedService": {
@@ -58,11 +58,9 @@
 				"     partitionBy('roundRobin', 4)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'json',",
-				"     container: 'datafactory',",
-				"     folderPath: 'Output',",
+				"     format: 'parquet',",
+				"     filePattern:'output-[n].parquet',",
 				"     truncate: true,",
-				"     filePattern:'filename-[n].json',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
