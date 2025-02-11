@@ -14,9 +14,9 @@
 			],
 			"sinks": [
 				{
-					"linkedService": {
-						"referenceName": "AzureBlobStorage1",
-						"type": "LinkedServiceReference"
+					"dataset": {
+						"referenceName": "OutputJson",
+						"type": "DatasetReference"
 					},
 					"name": "sink1"
 				}
@@ -51,11 +51,8 @@
 				"          {_PartitionKey} = mod({_Uprn}, 1000)) ~> AdditionalColumns",
 				"AdditionalColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'json',",
-				"     container: 'datafactory',",
-				"     folderPath: 'Output',",
+				"     filePattern:'output[n].json',",
 				"     truncate: true,",
-				"     partitionFileNames:[(concat(toString(partitionId()), '.json'))],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1) ~> sink1"
