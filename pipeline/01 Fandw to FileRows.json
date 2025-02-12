@@ -41,7 +41,10 @@
 							},
 							{
 								"name": "_PipelineRunId",
-								"value": "@pipeline().RunId"
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
 							}
 						],
 						"storeSettings": {
@@ -54,7 +57,8 @@
 					},
 					"sink": {
 						"type": "CosmosDbSqlApiSink",
-						"writeBehavior": "insert"
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
 					},
 					"enableStaging": false,
 					"enableSkipIncompatibleRow": true,
