@@ -1,0 +1,65 @@
+{
+	"name": "BlobToTable",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Fandw",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "OutputJson",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          uprn as long,",
+				"          address as string,",
+				"          postcode as string,",
+				"          town as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     rowUrlColumn: '_Filename',",
+				"     wildcardPaths:['F&W/*.xlsx']) ~> source1",
+				"source1 derive({_Uprn} = uprn,",
+				"          {_PartitionKey} = mod(uprn, 1000),",
+				"          Fandw = @(uprn=uprn,",
+				"          address=address,",
+				"          postcode=postcode,",
+				"          town=town)) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          {_Filename},",
+				"          {_Uprn},",
+				"          {_PartitionKey},",
+				"          Fandw",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
