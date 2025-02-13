@@ -10,6 +10,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "CityFibreDirectFile",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -27,6 +34,18 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "union1"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -41,21 +60,56 @@
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: '_Filename',",
 				"     wildcardPaths:['F&W/*.xlsx']) ~> source1",
-				"source1 derive({_Uprn} = uprn,",
-				"          {_PartitionKey} = mod(uprn, 1000),",
+				"source(output(",
+				"          cabinet_city as string,",
+				"          secondary_node as string,",
+				"          uprn as long,",
+				"          full_address as string,",
+				"          post_code as string,",
+				"          dr_status as string,",
+				"          blpu_classification as string,",
+				"          installation_date as string,",
+				"          property_flags as string,",
+				"          demand_point_type as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     rowUrlColumn: '_Filename',",
+				"     wildcardPaths:['City Fibre Direct/*.csv']) ~> source2",
+				"source1 derive({_Uprn} = toInteger(uprn),",
 				"          Fandw = @(uprn=uprn,",
 				"          address=address,",
 				"          postcode=postcode,",
-				"          town=town)) ~> derivedColumn1",
+				"          town=town,",
+				"          {_Filename}={_Filename})) ~> derivedColumn1",
 				"derivedColumn1 select(mapColumn(",
-				"          {_Filename},",
 				"          {_Uprn},",
-				"          {_PartitionKey},",
 				"          Fandw",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sink(allowSchemaDrift: true,",
+				"source2 derive({_Uprn} = toInteger(uprn),",
+				"          CityFibreDirect = @(cabinet_city=cabinet_city,",
+				"          secondary_node=secondary_node,",
+				"          uprn=uprn,",
+				"          full_address=full_address,",
+				"          post_code=post_code,",
+				"          dr_status=dr_status,",
+				"          blpu_classification=blpu_classification,",
+				"          installation_date=installation_date,",
+				"          property_flags=property_flags,",
+				"          demand_point_type=demand_point_type,",
+				"          {_Filename}={_Filename})) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          {_Uprn},",
+				"          CityFibreDirect",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1, select2 union(byName: true)~> union1",
+				"union1 derive({_PartitionKey} = toString(mod(toInteger({_Uprn}), 1000))) ~> derivedColumn3",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     filePattern:'output2-[n].json',",
 				"     skipDuplicateMapInputs: true,",
