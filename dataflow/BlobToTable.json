@@ -9,14 +9,21 @@
 						"referenceName": "Fandw",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "SourceFandw"
 				},
 				{
 					"dataset": {
 						"referenceName": "CityFibreDirectFile",
 						"type": "DatasetReference"
 					},
-					"name": "source2"
+					"name": "SourceCityFibreDirect"
+				},
+				{
+					"dataset": {
+						"referenceName": "FreedomFibre",
+						"type": "DatasetReference"
+					},
+					"name": "SourceFreedomFibre"
 				}
 			],
 			"sinks": [
@@ -46,6 +53,15 @@
 				},
 				{
 					"name": "derivedColumn3"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "select3"
 				}
 			],
 			"scriptLines": [
@@ -59,7 +75,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: '_Filename',",
-				"     wildcardPaths:['F&W/*.xlsx']) ~> source1",
+				"     wildcardPaths:['F&W/*.xlsx']) ~> SourceFandw",
 				"source(output(",
 				"          cabinet_city as string,",
 				"          secondary_node as string,",
@@ -76,8 +92,19 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: '_Filename',",
-				"     wildcardPaths:['City Fibre Direct/*.csv']) ~> source2",
-				"source1 derive({_Uprn} = toInteger(uprn),",
+				"     wildcardPaths:['City Fibre Direct/*.csv']) ~> SourceCityFibreDirect",
+				"source(output(",
+				"          uprn as long,",
+				"          address as string,",
+				"          postcode as string,",
+				"          town as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     rowUrlColumn: '_Filename',",
+				"     wildcardPaths:['Freedom Fibre/*.xlsx']) ~> SourceFreedomFibre",
+				"SourceFandw derive({_Uprn} = toInteger(uprn),",
 				"          Fandw = @(uprn=uprn,",
 				"          address=address,",
 				"          postcode=postcode,",
@@ -89,7 +116,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"source2 derive({_Uprn} = toInteger(uprn),",
+				"SourceCityFibreDirect derive({_Uprn} = toInteger(uprn),",
 				"          CityFibreDirect = @(cabinet_city=cabinet_city,",
 				"          secondary_node=secondary_node,",
 				"          uprn=uprn,",
@@ -107,9 +134,24 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select1, select2 union(byName: true)~> union1",
+				"select1, select3 union(byName: true)~> union1",
 				"union1 derive({_PartitionKey} = toString(mod(toInteger({_Uprn}), 1000))) ~> derivedColumn3",
-				"derivedColumn3 sink(allowSchemaDrift: true,",
+				"derivedColumn3 aggregate(groupBy({_Uprn}),",
+				"     each(match(regexMatch(name, '^_(?!Uprn$).*')), $$ = max($$)),",
+				"          each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> aggregate1",
+				"SourceFreedomFibre derive({_Uprn} = toInteger(uprn),",
+				"          FreedomFibre = @(uprn=uprn,",
+				"          address=address,",
+				"          postcode=postcode,",
+				"          town=town,",
+				"          {_Filename}={_Filename})) ~> derivedColumn4",
+				"derivedColumn4 select(mapColumn(",
+				"          {_Uprn},",
+				"          FreedomFibre",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"aggregate1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     filePattern:'output2-[n].json',",
 				"     skipDuplicateMapInputs: true,",
