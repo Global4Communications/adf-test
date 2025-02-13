@@ -125,7 +125,7 @@
 			}
 		],
 		"folder": {
-			"name": "TestCosmosToTable"
+			"name": "BlobToUprns"
 		},
 		"annotations": []
 	}
