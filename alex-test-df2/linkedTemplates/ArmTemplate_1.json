@@ -266,7 +266,8 @@
 							},
 							"sink": {
 								"type": "CosmosDbSqlApiSink",
-								"writeBehavior": "insert"
+								"writeBehavior": "insert",
+								"disableMetricsCollection": false
 							},
 							"enableStaging": false,
 							"enableSkipIncompatibleRow": true,
@@ -1201,6 +1202,171 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/BlobToTable')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Fandw",
+								"type": "DatasetReference"
+							},
+							"name": "SourceFandw"
+						},
+						{
+							"dataset": {
+								"referenceName": "CityFibreDirectFile",
+								"type": "DatasetReference"
+							},
+							"name": "SourceCityFibreDirect"
+						},
+						{
+							"dataset": {
+								"referenceName": "FreedomFibre",
+								"type": "DatasetReference"
+							},
+							"name": "SourceFreedomFibre"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OutputJson",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn4"
+						},
+						{
+							"name": "select3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          uprn as long,",
+						"          address as string,",
+						"          postcode as string,",
+						"          town as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     rowUrlColumn: '_Filename',",
+						"     wildcardPaths:['F&W/*.xlsx']) ~> SourceFandw",
+						"source(output(",
+						"          cabinet_city as string,",
+						"          secondary_node as string,",
+						"          uprn as long,",
+						"          full_address as string,",
+						"          post_code as string,",
+						"          dr_status as string,",
+						"          blpu_classification as string,",
+						"          installation_date as string,",
+						"          property_flags as string,",
+						"          demand_point_type as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     rowUrlColumn: '_Filename',",
+						"     wildcardPaths:['City Fibre Direct/*.csv']) ~> SourceCityFibreDirect",
+						"source(output(",
+						"          uprn as long,",
+						"          address as string,",
+						"          postcode as string,",
+						"          town as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     rowUrlColumn: '_Filename',",
+						"     wildcardPaths:['Freedom Fibre/*.xlsx']) ~> SourceFreedomFibre",
+						"SourceFandw derive({_Uprn} = toInteger(uprn),",
+						"          Fandw = @(uprn=uprn,",
+						"          address=address,",
+						"          postcode=postcode,",
+						"          town=town,",
+						"          {_Filename}={_Filename})) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          {_Uprn},",
+						"          Fandw",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"SourceCityFibreDirect derive({_Uprn} = toInteger(uprn),",
+						"          CityFibreDirect = @(cabinet_city=cabinet_city,",
+						"          secondary_node=secondary_node,",
+						"          uprn=uprn,",
+						"          full_address=full_address,",
+						"          post_code=post_code,",
+						"          dr_status=dr_status,",
+						"          blpu_classification=blpu_classification,",
+						"          installation_date=installation_date,",
+						"          property_flags=property_flags,",
+						"          demand_point_type=demand_point_type,",
+						"          {_Filename}={_Filename})) ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          {_Uprn},",
+						"          CityFibreDirect",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1, select3 union(byName: true)~> union1",
+						"union1 derive({_PartitionKey} = toString(mod(toInteger({_Uprn}), 1000))) ~> derivedColumn3",
+						"derivedColumn3 aggregate(groupBy({_Uprn}),",
+						"     each(match(regexMatch(name, '^_(?!Uprn$).*')), $$ = max($$)),",
+						"          each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> aggregate1",
+						"SourceFreedomFibre derive({_Uprn} = toInteger(uprn),",
+						"          FreedomFibre = @(uprn=uprn,",
+						"          address=address,",
+						"          postcode=postcode,",
+						"          town=town,",
+						"          {_Filename}={_Filename})) ~> derivedColumn4",
+						"derivedColumn4 select(mapColumn(",
+						"          {_Uprn},",
+						"          FreedomFibre",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     filePattern:'output2-[n].json',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/CosmosToTable')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1548,6 +1714,157 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]",
+				"[concat(variables('factoryId'), '/datasets/rfsUprns')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02 Blob To Uprns2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BlobToTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceFandw": {},
+									"SourceCityFibreDirect": {},
+									"SourceFreedomFibre": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Output",
+									"wildcardFileName": "*.json",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTablePartitionKeyName": "PartitionKey",
+								"azureTableRowKeyName": "_Uprn",
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['_Uprn']"
+										},
+										"sink": {
+											"name": "_Uprn"
+										}
+									},
+									{
+										"source": {
+											"path": "$['_PartitionKey']"
+										},
+										"sink": {
+											"name": "PartitionKey"
+										}
+									},
+									{
+										"source": {
+											"path": "$['FreedomFibre']"
+										},
+										"sink": {
+											"name": "FreedomFibre",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Fandw']"
+										},
+										"sink": {
+											"name": "Fandw"
+										}
+									}
+								],
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OutputJson",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "rfsUprns",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "BlobToUprns"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/BlobToTable')]",
 				"[concat(variables('factoryId'), '/datasets/rfsUprns')]"
 			]
 		}
