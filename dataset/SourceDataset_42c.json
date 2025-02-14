@@ -1,0 +1,21 @@
+{
+	"name": "SourceDataset_42c",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "FWRFSCorrecred",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "F&W",
+				"container": "datafactory"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}
