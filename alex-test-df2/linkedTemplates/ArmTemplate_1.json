@@ -13,6 +13,43 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/alexTestPg')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alexTestPg",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "public",
+					"table": "fandw"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mongo_testCollection2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CosmosDbMongoDb2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "CosmosDbMongoDbApiCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "testCollection2"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/rfsFileRows')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -366,6 +403,130 @@
 				},
 				"folder": {
 					"name": "TestCosmosToTable"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyPipeline_42c')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_42c",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "datafactory/F&W/"
+							},
+							{
+								"name": "Destination",
+								"value": "testCopy"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTablePartitionKeyName": "uprn",
+								"azureTableRowKeyName": "uprn",
+								"writeBatchSize": 1
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "uprn",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "uprn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "address",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "address",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "postcode",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "postcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "town",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "town",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_42c",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_42c",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
 				"annotations": []
 			},
@@ -914,7 +1075,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/mongo_testCollection2')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/FreedomFibre_TableStorage')]",
@@ -1344,8 +1507,8 @@
 						"select1, select3 union(byName: true)~> union1",
 						"union1 derive({_PartitionKey} = toString(mod(toInteger({_Uprn}), 1000))) ~> derivedColumn3",
 						"derivedColumn3 aggregate(groupBy({_Uprn}),",
-						"     each(match(regexMatch(name, '^_(?!Uprn$).*')), $$ = max($$)),",
-						"          each(match(regexMatch(name, '^[^_].*')), $$ = max($$))) ~> aggregate1",
+						"     each(match(regexMatch(name,'^_(?!Uprn$).*')), $$ = max($$)),",
+						"          each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> aggregate1",
 						"SourceFreedomFibre derive({_Uprn} = toInteger(uprn),",
 						"          FreedomFibre = @(uprn=uprn,",
 						"          address=address,",
@@ -1361,6 +1524,7 @@
 						"aggregate1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     filePattern:'output2-[n].json',",
+						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> sink1"
 					]
@@ -1563,6 +1727,157 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/02 Blob To Uprns2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "BlobToTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceFandw": {},
+									"SourceCityFibreDirect": {},
+									"SourceFreedomFibre": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "None",
+							"cacheSinks": {
+								"firstRowOnly": true
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Output",
+									"wildcardFileName": "*.json",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureTableSink",
+								"azureTableInsertType": "merge",
+								"azureTablePartitionKeyName": "PartitionKey",
+								"azureTableRowKeyName": "_Uprn",
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['_Uprn']"
+										},
+										"sink": {
+											"name": "_Uprn"
+										}
+									},
+									{
+										"source": {
+											"path": "$['_PartitionKey']"
+										},
+										"sink": {
+											"name": "PartitionKey"
+										}
+									},
+									{
+										"source": {
+											"path": "$['FreedomFibre']"
+										},
+										"sink": {
+											"name": "FreedomFibre",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Fandw']"
+										},
+										"sink": {
+											"name": "Fandw"
+										}
+									}
+								],
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OutputJson",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "rfsUprns",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "BlobToUprns"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/BlobToTable')]",
+				"[concat(variables('factoryId'), '/datasets/rfsUprns')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/02 FileRows to Uprns')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1720,7 +2035,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/02 Blob To Uprns2')]",
+			"name": "[concat(parameters('factoryName'), '/Test Faster Loading')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1728,6 +2043,8 @@
 					{
 						"name": "Data flow1",
 						"type": "ExecuteDataFlow",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -1739,13 +2056,11 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "BlobToTable",
+								"referenceName": "CosmosToTable",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"SourceFandw": {},
-									"SourceCityFibreDirect": {},
-									"SourceFreedomFibre": {},
+									"NosqlFileRows": {},
 									"sink1": {}
 								}
 							},
@@ -1796,11 +2111,13 @@
 							"sink": {
 								"type": "AzureTableSink",
 								"azureTableInsertType": "merge",
-								"azureTablePartitionKeyName": "PartitionKey",
+								"azureTablePartitionKeyName": "_PartitionKey",
 								"azureTableRowKeyName": "_Uprn",
-								"writeBatchSize": 10000
+								"writeBatchSize": 100
 							},
 							"enableStaging": false,
+							"parallelCopies": 16,
+							"enableSkipIncompatibleRow": true,
 							"translator": {
 								"type": "TabularTranslator",
 								"mappings": [
@@ -1817,24 +2134,15 @@
 											"path": "$['_PartitionKey']"
 										},
 										"sink": {
-											"name": "PartitionKey"
+											"name": "_PartitionKey"
 										}
 									},
 									{
 										"source": {
-											"path": "$['FreedomFibre']"
+											"path": "$['CityFibreSom2']"
 										},
 										"sink": {
-											"name": "FreedomFibre",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['Fandw']"
-										},
-										"sink": {
-											"name": "Fandw"
+											"name": "CityFibreSom2"
 										}
 									}
 								],
@@ -1861,12 +2169,12 @@
 					"elapsedTimeMetric": {}
 				},
 				"folder": {
-					"name": "BlobToUprns"
+					"name": "TestCosmosToTable"
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/BlobToTable')]",
+				"[concat(variables('factoryId'), '/dataflows/CosmosToTable')]",
 				"[concat(variables('factoryId'), '/datasets/rfsUprns')]"
 			]
 		}

@@ -259,6 +259,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_42c')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "alextestsa2_tableStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "testCopy"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/alextestsa2_tableStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Fandw')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -521,44 +541,29 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/alexTestPg')]",
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_42c')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "alexTestPg",
+					"referenceName": "AzureBlobStorage1",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
-				"type": "AzurePostgreSqlTable",
-				"schema": [],
+				"type": "Excel",
 				"typeProperties": {
-					"schema": "public",
-					"table": "fandw"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/alexTestPg')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/mongo_testCollection2')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "CosmosDbMongoDb2",
-					"type": "LinkedServiceReference"
+					"sheetName": "FWRFSCorrecred",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "F&W",
+						"container": "datafactory"
+					},
+					"firstRowAsHeader": true
 				},
-				"annotations": [],
-				"type": "CosmosDbMongoDbApiCollection",
-				"schema": [],
-				"typeProperties": {
-					"collection": "testCollection2"
-				}
+				"schema": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/CosmosDbMongoDb2')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
 			]
 		}
 	]
