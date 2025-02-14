@@ -1,0 +1,15 @@
+{
+	"name": "DestinationDataset_42c",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "alextestsa2_tableStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "testCopy"
+		}
+	}
+}
