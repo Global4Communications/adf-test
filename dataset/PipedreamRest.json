@@ -1,0 +1,18 @@
+{
+	"name": "PipedreamRest",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "PipedreamRest",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "RequestBin"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "alex-test"
+		},
+		"schema": []
+	}
+}
