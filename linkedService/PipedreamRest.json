@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://eol515m5pdu1i3t.m.pipedream.net",
+			"url": "https://eoqqx5n89swaj5i.m.pipedream.net",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
