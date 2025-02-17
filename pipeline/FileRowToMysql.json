@@ -57,7 +57,7 @@
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
 							"wildcardFolderPath": "Output",
-							"wildcardFileName": "*.json",
+							"wildcardFileName": "threelines.json",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
