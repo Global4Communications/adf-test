@@ -28,6 +28,85 @@
 						"firstRowOnly": true
 					}
 				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "Output",
+							"wildcardFileName": "threelines.json",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureMySqlSink",
+						"writeBatchSize": 10000,
+						"writeBatchTimeout": "00:00:30"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['_Uprn']"
+								},
+								"sink": {
+									"name": "_Uprn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['Fandw']"
+								},
+								"sink": {
+									"name": "Fandw"
+								}
+							},
+							{
+								"source": {
+									"path": "$['Kcom']"
+								},
+								"sink": {
+									"name": "Kcom"
+								}
+							}
+						],
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "OutputJson",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AlexTestAdm",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"folder": {
