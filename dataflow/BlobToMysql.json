@@ -1,5 +1,5 @@
 {
-	"name": "BlobToJson",
+	"name": "BlobToMysql",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -28,9 +28,9 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "OutputJson",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "AlexTestAdm",
+						"type": "LinkedServiceReference"
 					},
 					"name": "sink1"
 				}
@@ -62,6 +62,9 @@
 				},
 				{
 					"name": "select3"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -153,12 +156,24 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select3",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"aggregate1 alterRow(upsertIf(true())) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'table',",
+				"     tableName: 'uprns',",
+				"     deletable: true,",
+				"     insertable: true,",
+				"     updateable: true,",
+				"     upsertable: true,",
+				"     keys:['_Uprn'],",
+				"     store: 'mysql',",
+				"     batchSize: 1,",
 				"     filePattern:'output2-[n].json',",
-				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          uprn = {_Uprn}",
+				"     )) ~> sink1"
 			]
 		}
 	}
