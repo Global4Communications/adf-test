@@ -33,7 +33,7 @@
 				"name": "Copy data1",
 				"type": "Copy",
 				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
+				"onInactiveMarkAs": "Skipped",
 				"dependsOn": [
 					{
 						"activity": "Data flow1",

@@ -112,7 +112,7 @@
 				"     ignoreNoFilesFound: false,",
 				"     rowUrlColumn: '_Filename',",
 				"     wildcardPaths:['Freedom Fibre/*.xlsx']) ~> SourceFreedomFibre",
-				"SourceFandw derive({_Uprn} = toInteger(uprn),",
+				"SourceFandw derive({_Uprn} = toString(uprn),",
 				"          Fandw = @(uprn=uprn,",
 				"          address=address,",
 				"          postcode=postcode,",
@@ -124,7 +124,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"SourceCityFibreDirect derive({_Uprn} = toInteger(uprn),",
+				"SourceCityFibreDirect derive({_Uprn} = toString(uprn),",
 				"          CityFibreDirect = @(cabinet_city=cabinet_city,",
 				"          secondary_node=secondary_node,",
 				"          uprn=uprn,",
@@ -147,7 +147,7 @@
 				"derivedColumn3 aggregate(groupBy({_Uprn}),",
 				"     each(match(regexMatch(name,'^_(?!Uprn$).*')), $$ = max($$)),",
 				"          each(match(regexMatch(name,'^[^_].*')), $$ = max($$))) ~> aggregate1",
-				"SourceFreedomFibre derive({_Uprn} = toInteger(uprn),",
+				"SourceFreedomFibre derive({_Uprn} = toString(uprn),",
 				"          FreedomFibre = @(uprn=uprn,",
 				"          address=address,",
 				"          postcode=postcode,",
@@ -163,10 +163,7 @@
 				"aggregate1 stringify(Fandw = Fandw ? string,",
 				"          FreedomFibre = FreedomFibre ? string,",
 				"          CityFibreDirect = CityFibreDirect ? string,",
-				"     format: 'delimited',",
-				"     columnNamesAsHeader: false,",
-				"     columnDelimiter: ',',",
-				"     nullValue: '') ~> stringify1",
+				"     format: 'json') ~> stringify1",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -188,13 +185,7 @@
 				"     batchSize: 10000,",
 				"     filePattern:'output2-[n].json',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          {_Uprn},",
-				"          CityFibreDirect = CityFibreDirect,",
-				"          Fandw = Fandw,",
-				"          FreedomFibre = FreedomFibre",
-				"     )) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
