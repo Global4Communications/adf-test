@@ -65,6 +65,9 @@
 				},
 				{
 					"name": "alterRow1"
+				},
+				{
+					"name": "stringify1"
 				}
 			],
 			"scriptLines": [
@@ -139,7 +142,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select1, select3 union(byName: true)~> union1",
+				"select1, select3, select2 union(byName: true)~> union1",
 				"union1 derive({_PartitionKey} = toString(mod(toInteger({_Uprn}), 1000))) ~> derivedColumn3",
 				"derivedColumn3 aggregate(groupBy({_Uprn}),",
 				"     each(match(regexMatch(name,'^_(?!Uprn$).*')), $$ = max($$)),",
@@ -156,12 +159,23 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select3",
-				"aggregate1 alterRow(upsertIf(true())) ~> alterRow1",
+				"stringify1 alterRow(upsertIf(true())) ~> alterRow1",
+				"aggregate1 stringify(Fandw = Fandw ? string,",
+				"          FreedomFibre = FreedomFibre ? string,",
+				"          CityFibreDirect = CityFibreDirect ? string,",
+				"     format: 'delimited',",
+				"     columnNamesAsHeader: false,",
+				"     columnDelimiter: ',',",
+				"     nullValue: '') ~> stringify1",
 				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          id as long,",
-				"          uprn as string",
+				"          {_Uprn} as string,",
+				"          FreedomFibre as string,",
+				"          Fandw as string,",
+				"          CityFibreDirect as string,",
+				"          {_ParititonKey} as string",
 				"     ),",
 				"     format: 'table',",
 				"     tableName: 'uprns',",
@@ -169,14 +183,17 @@
 				"     insertable: false,",
 				"     updateable: false,",
 				"     upsertable: true,",
-				"     keys:['uprn'],",
+				"     keys:['_Uprn'],",
 				"     store: 'mysql',",
 				"     batchSize: 10000,",
 				"     filePattern:'output2-[n].json',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
-				"          uprn = {_Uprn}",
+				"          {_Uprn},",
+				"          CityFibreDirect = CityFibreDirect,",
+				"          Fandw = Fandw,",
+				"          FreedomFibre = FreedomFibre",
 				"     )) ~> sink1"
 			]
 		}
