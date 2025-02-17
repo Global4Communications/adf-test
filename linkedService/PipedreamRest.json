@@ -1,0 +1,12 @@
+{
+	"name": "PipedreamRest",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://eol515m5pdu1i3t.m.pipedream.net",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
